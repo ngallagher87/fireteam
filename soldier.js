@@ -2,41 +2,46 @@
 	This defines a soldier object the red god can use
 
 */
-var Soldier = (function(name) {
-	function Soldier(name) {
-		// Init instance props in constructors
-		this.name = name;
-		this.hp = Math.floor(Math.random()*100)+1; // Sets HP to be within 1 - 100
-		this.damage = Math.floor(Math.random()*10)+10; // Sets damage to be within 10 - 20 dmg
-		this.isDead = false;
-		console.log("A soldier by the name of " + this.name + 
-					" has been born with "+ this.hp + " hp and does " 
-					+ this.damage + " damage");
+var Soldier = (function(id) {
+	function Soldier(id) {
+		// Init a db connection
+		var mongoose 		= require('mongoose'),
+			SoldierSchema 	= require('./_schema/soldier_schema');
+		// Connect to db
+		mongoose.connect('mongodb://localhost/test');		
+		// Store a db connection
+		this.db = mongoose.connection;
+		this.db.on('error', console.error.bind(console, 'connection error:'));
+		this.db.once('open', function callback () {
+		  // Initialize the soldier model here
+		  	this.SoldierModel = mongoose.model('Soldier', SoldierSchema);
+		  	this.SoldierModel.find({SoldierID: id}, function (soldier) {
+			  	// We've found our soldier here, so assign it
+			  	this.soldier = soldier;
+		  	})
+		});
+		
+		// Init instance props in constructors		
+		console.log("A soldier by the name of "+this.soldier.name + "has been loaded");
 	}
-	
+	// Gets a soldiers name
 	Soldier.prototype.getName = function() {
-		return this.name;
+		return this.soldier.name;
 	}
 	
 	// Define an attack routine for a soldier
 	Soldier.prototype.attack = function() {
-		return this.damage;
+		return this.soldier.dealDamage();
 	}
 	
 	// Define a way for a soldier to take damage
 	Soldier.prototype.takeDamage = function(damage) {
-		this.hp -= damage;
-		if(this.hp <= 0) {
-			this.isDead = true;
-			console.log("A soldier by the name of "+ this.name + " has died");
-		} else {
-			console.log("A soldier by the name of "+ this.name + " has taken "+damage+" damage");
-		}
+		this.soldier.currentHP -= damage;
 	}
 	
 	// Getter for seeing if a soldier is dead
 	Soldier.prototype.checkDead = function() {
-		return this.isDead;
+		return this.soldier.isDead();
 	}
 	return Soldier;
 })();

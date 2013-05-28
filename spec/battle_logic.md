@@ -1,78 +1,84 @@
-# Battle logic
+# Round structure
 
-This spec defines the logic in our battle executor, herein refered to as the red god.
+Each soldier will have 3 actions per combat round
 
-## Summary
+* Initiation
+* Target
+* Standard
 
-Each battle follows the same core framework. Two teams are passed to the red god. The red god then determines soldier turn order, and then runs the appropriate soldier functions. Once one team has no soldiers standing, we determine winners and losers.
+# Initiation
 
-## Soldier functions
+This is where a soldier's turn order is sorted out. Soldiers will have the ability to influence their turn order in combat each round.
 
-Each soldier can define 4 battle functions that the red god will use:
+Every soldier has a speed stat. This stat goes from `0 … n`. The higher the number the faster the soldier.
 
-### Initiation
+Turn order is determined by taking every soldiers speed number and ordering them descending. In the event of a speed tie (2 soldiers have the same speed stat), we flip a coin.
 
-Initiation sets up speed tiers. Soldiers can do the following in the `initiation` function:
+### Example
 
-* `rush`
-	* This increases the soldiers speed tier by 1, but applies the `rushing` debuff.
-	
-**Example**
+Say we have 2 teams, each with 3 soldiers a piece: one warrior, one wizard, and one archer. Below is a table illustrating their speed stats:
 
-	function initiation() {
-		this.rush();
+| Class | Team 1 | Team 2 |
+| ---- | ---- | ----| 
+| Warrior| 5 | 6 |
+| Wizard | 1 | 1 |
+| Archer | 3 | 2 |
+
+As we can see, the wizards share the same speed stat. Here we would preflight generating the round stack by iterating thru each combatant, finding speed ties, and flipping a coin to determine the round placement.
+
+	for each combatant {
+		if this.combatant.speed = another.combatant.speed {
+			if flipCoint() === heads
+				roundOrder.push(this.combatant)
+				roundOrder.push(another.combatant)
+			else
+				roundOrder.push(another.combatant)
+				roundOrder.push(this.combatant)
+		}
 	}
+> This is obviously pseudo-code: I'm too lazy to write this out in js right now
+
+Based on the above, the order round order would look like this:
 	
+	[
+		"warrior team 2",
+		"warrior team 1",
+		"archer team 1",
+		"archer team 2",
+		"wizard team 2",   <-- assuming he won the coin flip
+		"wizard team 1"
+	]
 	
-### Standard
+Using FIFO on this array we now know who is going first.
 
-A soldiers `standard()` function will trigger when the red god tells the soldier it is his turn. A soldier can do the following actions with their `standard()`:
+## Soldier overrides
 
-* `standard_attack()`
-	* This will pick the closest enemy target and attack that soldier.
-* `brutal_attack()`
-	* This will pick the closest enemy target and trigger a brutal attack. Brutal attacks are stronger than standard attacks, but they cause the `reckless` debuff. 
-* `counter_stance()`
-	* This defers the attack action to trigger when an opponent attacks this soldier.
-* `heal()`
-	* This heals 25% of the units health
+Soldiers will have ways to influence their speed stat during combat. Each soldier has a function that allows them to speed up or slow down depending on context.
 
-**Example**
+The basic concept is slowing down allows for the sldier to be more defensive, and rushing allows for more offense.
 
-	function attack() {
-		if(HP < HALF_HP) {
-			this.heal();
-		}
-		standard_attack();
+The red god will apply these buffs/debuffs for a soldier - all they have to do is say how they plan to act this battle turn.
+
+## Example
+
+Here is a simple example of how a soldier would apply his initiation turn:
+
+	if (hp < 15) {
+		return SLOW_DOWN;
 	}
-
-### Defend
-
-When a soldier is the target of an attack, he can perform a defensive action (as long as a previous condition hasn't defined that he loose his defensive action).
-
-* `standard_defend()`
-	* This allows a soldier to mitigate some damage from an attack.
-* `strong_defend()`
-	* This allows a soldier to mitigate all damage from an attack, but causes the soldier to enter into the `turtled` state.
-* `no_defend()`
-	* This causes the soldier to defend no damage, but puts the soldier in the `bloodlust` state
-	
-**Example**
-
-	function defend() {
-		if(HP === FULL_HP) {
-			this.no_defend();
-		}
-		if(HP > HALF_HP) {
-			this.standard_defend();
-		}
-		else {
-			strong_defend();
-		}
-
+	if (hp === maxHP) {
+		return RUSH;
 	}
+	return STANDARD;
 
-## Initiation roles
+I think that's pretty straight forward. I'll define another spec that shows exactly what a soldier can do, but this works in this example.
 
-First we group soldiers up by their speed tier. If any soldier triggers a `rush` state, we bump up their speed tier by 1 and apply any debuffs.
+Note that `SLOW_DOWN` and `RUSH` refer to integer constants. That is, all this function is really doing is returning 0, 1, or 2. In fact, since I'm letting end users write these functions, if these dont return that info then the we will refuse the soldier his turn.
 
+# Target
+
+Todo: put targeting info here
+
+# Standard
+
+Todo: put standard info here

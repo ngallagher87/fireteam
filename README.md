@@ -23,7 +23,12 @@ Current routes:
 
 	http://SERVER:3000/winners
 	
-> Lists the current amount of wins each warrior has
+> Lists the current stats for each warrior
+
+	http://SERVER:3000/save
+	
+> Saves 2 warriors, Hank and Urrgramash to the database. Calling this twice saves multiples of the same soldier, so I advise you to only run this once (don't worry I'll change this later to be nicer).
+
 
 
 

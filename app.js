@@ -9,9 +9,22 @@ var express 		= require('express'),
 	passport		= require('passport'),
 	GitHubStrategy 	= require('passport-github').Strategy;
 
-var GITHUB_CLIENT_ID = "--insert-github-client-id-here--"
-var GITHUB_CLIENT_SECRET = "--insert-github-client-secret-here--";
-	
+// Load the github client ID and client secret values
+// NOTE: These must exist for the app to work. 
+// They are not in source so ensure you create them or get them from someone!
+try {
+	var github_auth = JSON.parse(fs.readFileSync('github_auth.json'));
+} catch (e) {	
+	console.log(e);
+	console.log('ERROR! GitHub auth file missing: cannot continue. '+
+				'Supply a github auth file that has client id and secret id to allow user login. '+
+				'\n\nIf you ask super nice, ngallagher87 will give them to you.');
+	process.exit(1);
+}
+
+var GITHUB_CLIENT_ID = github_auth.client_id
+	GITHUB_CLIENT_SECRET = github_auth.client_secret;
+
 // Use the GitHubStrategy within Passport.
 //   Strategies in Passport require a `verify` function, which accept
 //   credentials (in this case, an accessToken, refreshToken, and GitHub

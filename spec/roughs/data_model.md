@@ -1,6 +1,6 @@
 # Data model
 
-We have a few data components, and below is how they are stored:
+We haev a few data components, and below is how they are stored:
 
 	|-----------|	
 	|	User	|-----------|

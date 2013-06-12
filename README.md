@@ -15,7 +15,23 @@ To start the app, use this:
 
 	node app.js
 	
-Current routes:
+## Module summary
+
+Fireteam runs on `Express`. It uses `Passport` for auth (currently github is our only provider), and it uses `ejs` for templating.
+
+`MongoDB` drives the database, and `Mongoose` is used as middleware. Fireteam also utilize `async` to help with code flow.
+	
+## Current routes:
+
+If you're running this local, server = `127.0.0.1`
+
+	http://SERVER:3000/login
+	
+> Authenticates a user thru GitHub (currently our only auth provider)
+
+	http://SERVER:3000/account
+	
+> Renders a simple account page
 
 	http://SERVER:3000/battle
 	

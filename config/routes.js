@@ -11,7 +11,7 @@ module.exports = function (app) {
 		passport		= require('passport');	 
 
 	// Route to do our battling
-	app.get('/battle', function(req, res) {
+	app.get('/battle', ensureAuthenticated, function(req, res) {
 		// Parallel our call - first make 2 soldiers (requires db connection)
 		async.parallel([
 			function(callback) {
@@ -33,14 +33,14 @@ module.exports = function (app) {
 	});
 	
 	// Create some soldiers
-	app.get('/save', function(req, res) {
+	app.get('/save', ensureAuthenticated, function(req, res) {
 		soldier_ctrl.createSoldier(req, res, 1, "Hank");
 		soldier_ctrl.createSoldier(req, res, 2, "Urgramesh the Destroyer");
 		res.send("Created two soldiers.\n", 200);
 	});
 		
 	// Route to show winner history
-	app.get('/winners', function(req, res) {
+	app.get('/winners', ensureAuthenticated, function(req, res) {
 		async.parallel([
 			function(callback) {
 				var record1 = soldier_ctrl.showRecord(1, callback);
@@ -63,7 +63,8 @@ module.exports = function (app) {
 	});
 	
 	app.get('/login', function(req, res){
-	  res.render('login', { user: req.user });
+		console.log(req);
+		res.render('login', { user: req.user });
 	});
 	
 	// GET /auth/github
@@ -82,21 +83,21 @@ module.exports = function (app) {
 	//   Use passport.authenticate() as route middleware to authenticate the
 	//   request.  If authentication fails, the user will be redirected back to the
 	//   login page.  Otherwise, the primary route function function will be called,
-	//   which, in this example, will redirect the user to the home page.
+	//   which, in this example, will redirect the user to the battle page.
 	app.get('/auth/github/callback', 
 		passport.authenticate('github', { failureRedirect: '/login' }),
 		function(req, res) {
-			res.redirect('/');
+			res.redirect('/battle');
 	});
 	
 	app.get('/logout', function(req, res){
 		req.logout();
-		res.redirect('/');
+		res.redirect('/login');
 	});
 	
 	// 404 handler
 	app.get('*', function(req, res) {
-		res.send('what???', 404);
+		res.send('404 - what???', 404);
 	});
 	
 	// Simple route middleware to ensure user is authenticated.

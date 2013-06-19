@@ -7,7 +7,7 @@ var async = require('async');
 module.exports = function (app) {
 	// Load our soldier route
 	var soldier_ctrl 	= require('../app/controllers/soldier_controller'),
-		redGod			= require('../red_god'),
+		redGod			= require('../app/controllers/red_god'),
 		passport		= require('passport');	 
 
 	// Route to do our battling
@@ -56,14 +56,13 @@ module.exports = function (app) {
 	});
 	
 	// Note:
-	// Passport code taken from https://github.com/jaredhanson/passport-github/blob/master/examples/login/app.js
+	// Passport code taken from https: //github.com/jaredhanson/passport-github/blob/master/examples/login/app.js
 	// All credits go to Jared Hanson for this auth code
 	app.get('/account', ensureAuthenticated, function(req, res){
 		res.render('account', { user: req.user });
 	});
 	
 	app.get('/login', function(req, res){
-		console.log(req);
 		res.render('login', { user: req.user });
 	});
 	
@@ -107,6 +106,6 @@ module.exports = function (app) {
 	//   login page.
 	function ensureAuthenticated(req, res, next) {
 	  if (req.isAuthenticated()) { return next(); }
-	  res.redirect('/login')
+	  res.redirect('/login');
 	}
 }

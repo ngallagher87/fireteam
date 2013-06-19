@@ -7,7 +7,8 @@ var express 		= require('express'),
 	mongoose 		= require('mongoose'),
 	fs 				= require('fs'),
 	passport		= require('passport'),
-	GitHubStrategy 	= require('passport-github').Strategy;
+	GitHubStrategy 	= require('passport-github').Strategy,
+	User			= mongoose.model('User');
 
 // Load the github client ID and client secret values
 // NOTE: These must exist for the app to work. 
@@ -34,11 +35,11 @@ var GITHUB_CLIENT_ID = github_auth.client_id
 //   have a database of user records, the complete GitHub profile is serialized
 //   and deserialized.
 passport.serializeUser(function(user, done) {
-  done(null, user);
+	done(null, user.email);
 });
 
 passport.deserializeUser(function(obj, done) {
-  done(null, obj);
+    done(err, obj);
 });
 
 // Use the GitHubStrategy within Passport.
@@ -53,12 +54,27 @@ passport.use(new GitHubStrategy({
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
-      
-      // To keep the example simple, the user's GitHub profile is returned to
-      // represent the logged-in user.  In a typical application, you would want
-      // to associate the GitHub account with a user record in your database,
-      // and return that user instead.
-      return done(null, profile);
+      console.log(profile);
+      // Here we recieved the GitHub profile of the user.
+      // Now we need to check if there is a user record tied to this email address
+      // If there is, return the user profile
+      // If not, create a user profile and return that
+      User.findOne({ email: profile.email }, function (err, user) {
+      		if (err || user === null) {
+				// This user doesn't exist, so create them
+				newUser = new User({
+					email: profile.email,
+					name: profile.name,
+					displayName: profile.displayName,
+					profile: profile
+				});
+				newUser.save();
+				return done(null, newUser);
+			}  else {
+				// This user exists already so return them
+				return done(null, user);
+			}
+		}
     });
   }
 ));

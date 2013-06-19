@@ -2,8 +2,7 @@
 // We load some modules here, and do some routing.
 function start(app) {
 	// Load our personal modules
-	var	redGod 		= require('./red_god'),
-		mongoose 	= require('mongoose');
+	var	mongoose 	= require('mongoose');
 	
 	// Connect our db
 	mongoose.connect('mongodb://localhost/test');

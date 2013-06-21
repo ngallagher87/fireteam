@@ -19,18 +19,6 @@ var UserSchema = new Schema({
 }, { collection : 'User' });
 
 /*
-	 Methods
-*/
-// Define a deal damage method
-// This generates a random number between minDamage and maxDamage
-UserSchema.methods = {
-	// Calculates this soldiers damage
-	dealDamage: function() {
-		return Math.floor(Math.random() * this.stats.maxDamage ) + this.stats.minDamage;	
-	}
-}
-
-/*
 	 Statics
 */
 UserSchema.statics = {
@@ -49,10 +37,9 @@ UserSchema.statics = {
 	find: function (email, callback) {
 		this.findOne({email: profile.email}), function(err, user) {
 			callback(err, user);
-		})
+		}
 	}
-	
 }
 
 // Set the model after we define some methods
-mongoose.model('User', UserSchema, 'User');
+mongoose.model('User', UserSchema);

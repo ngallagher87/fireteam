@@ -84,5 +84,5 @@ SoldierSchema.statics = {
 }
 
 // Set the model after we define some methods
-mongoose.model('Soldier', SoldierSchema, 'Soldier');
+mongoose.model('Soldier', SoldierSchema);
 

@@ -7,9 +7,9 @@ var mongoose = require('mongoose'),
 
 // Init schema
 var SoldierSchema = new Schema({
-	SoldierID:	Number,
 	name: 		String,
 	pointValue:	Number,
+	type:		String,
 	stats: {
 		level:		Number,
 		maxHP:		Number,
@@ -37,6 +37,11 @@ var SoldierSchema = new Schema({
 SoldierSchema.path('name').validate(function(name) {
   return name.length > 0
 }, 'Soldier name cannot be blank.');
+
+SoldierSchema.path('type').validate(function(value) {
+   return /warrior|wizard|archer/i.test(value);
+}, 'Invalid soldier type');
+
 
 /*
 	 Methods

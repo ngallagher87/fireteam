@@ -7,17 +7,63 @@ var mongoose = require('mongoose'),
 
 // Init schema
 var FireteamSchema = new Schema({
-	user: {type : Schema.ObjectId, ref : 'User'},
 	name: String,
 	stats: {
 		wins: Number,
 		losses: Number
 	},
 	soldiers: [
-		{type : Schema.ObjectId, ref : 'Soldier'}
+		{type : Schema.Types.ObjectId, ref : 'Soldier'}
 	]
 });
 
+FireteamSchema.methods = {
 
+	generateDefaultTeam: function() {
+		var Soldier	= mongoose.model('Soldier'),
+			generator = require('../utils/name_generator'),
+			i = 1,
+			type = 'warrior';
+		// Generate 5 soldiers for this fireteam
+		for (i; i === 6; i++) {
+			// Generate types
+			if (i < 3) type = 'warrior';
+			if (i > 3 && i < 6) type = 'archer';
+			if (i === 6) type = 'wizard';
+			
+		
+			var soldier = new Soldier({
+				name: 		generator.getName(),
+				pointValue:	1,
+				type: type,
+				stats: {
+					level:		1,
+					maxHP:		40,
+					currentHP: 	40,
+					minDamage:	10,
+					maxDamage:	15,
+					exp:		0
+				},
+				record: {
+					kills: 		0,
+					deaths: 	0,
+					dmgDone: 	0,
+					dmgTaken:	0,
+					hpRecovered:0
+				},
+				gridPosition: {
+					x: i % 3,
+					y: Math.Round(i / 2)
+				}
+			});
+			soldier.save();
+			this.soldiers[] = soldier._id;
+		}
+		
+		
+	}
+	
+	
+}
 // Set the model after we define some methods
 mongoose.model('Fireteam', FireteamSchema);

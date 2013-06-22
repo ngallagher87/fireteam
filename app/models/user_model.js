@@ -1,5 +1,5 @@
 /*
-	This defines the Soldier Schema/Model
+	This defines the User Schema/Model
 */
 
 var mongoose = require('mongoose'),
@@ -15,7 +15,9 @@ var UserSchema = new Schema({
 				},
 	name:		{ type: String },
 	displayName:{ type: String },
-	profile: 	{ type: Object }
+	profile: 	{ type: Object },
+	barracks:	{ type: Schema.Types.ObjectId, ref: 'Barracks' },
+	fireteam:	{ type: Schema.Types.ObjectId, ref: 'Fireteam' }
 }, { collection : 'User' });
 
 /*

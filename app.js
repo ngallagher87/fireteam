@@ -59,7 +59,6 @@ passport.use(new GitHubStrategy({
 			// If there is, return the user profile
 			// If not, create a user profile and return that
 			User.findOne({ email: profile.emails[0].value  }, function (err, foundUser) {
-		  		console.log(foundUser);
 		  		if (err || foundUser === null) {
 		  			console.log('creating new');
 					// This user doesn't exist, so create them
@@ -70,6 +69,17 @@ passport.use(new GitHubStrategy({
 						profile: profile
 					});
 					newUser.save();
+					Fireteam = mongoose.model('Fireteam');
+					var newFire = new Fireteam({
+						name: newUser.displayName + '\'s Battalion',
+						stats: {
+							wins: 0,
+							losses: 0
+						}
+					});
+					newFire.generateDefault();
+					newUser.fireteam = newFire._id;
+					
 					return done(null, newUser);
 				}  else {
 					console.log('return found user');

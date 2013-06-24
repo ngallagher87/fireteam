@@ -60,7 +60,7 @@ passport.use(new GitHubStrategy({
 			// If not, create a user profile and return that
 			User.findOne({ email: profile.emails[0].value  }, function (err, foundUser) {
 		  		if (err || foundUser === null) {
-		  			console.log('creating new');
+		  			console.log('creating new user/fireteam');
 					// This user doesn't exist, so create them
 					newUser = new User({
 						email: profile.emails[0].value,
@@ -68,7 +68,7 @@ passport.use(new GitHubStrategy({
 						displayName: profile.displayName,
 						profile: profile
 					});
-					newUser.save();
+					// Create a fireteam for the new user
 					Fireteam = mongoose.model('Fireteam');
 					var newFire = new Fireteam({
 						name: newUser.displayName + '\'s Battalion',
@@ -77,10 +77,14 @@ passport.use(new GitHubStrategy({
 							losses: 0
 						}
 					});
-					newFire.generateDefault();
-					newUser.fireteam = newFire._id;
-					
-					return done(null, newUser);
+					newFire.generateDefaultTeam(function(err, soldiers){
+						// Wait til we generate the team until we save the user
+						console.log(soldiers);
+						newUser.fireteam = newFire._id;
+						newFire.save();
+						newUser.save();
+						return done(null, newUser);
+					});
 				}  else {
 					console.log('return found user');
 					// This user exists already so return them

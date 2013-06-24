@@ -15,22 +15,23 @@ var FireteamSchema = new Schema({
 	soldiers: [
 		{type : Schema.Types.ObjectId, ref : 'Soldier'}
 	]
-});
+}, { collection : 'Fireteam' });
 
 FireteamSchema.methods = {
 
-	generateDefaultTeam: function() {
+	generateDefaultTeam: function(callback) {
 		var Soldier	= mongoose.model('Soldier'),
 			generator = require('../utils/name_generator'),
 			i = 1,
 			type = 'warrior';
 		// Generate 5 soldiers for this fireteam
-		for (i; i === 6; i++) {
+		// TODO: Make a function per soldier type for generation
+		// Probably house that in the soldier model?
+		for (i; i <= 5; i++) {
 			// Generate types
 			if (i < 3) type = 'warrior';
 			if (i > 3 && i < 6) type = 'archer';
-			if (i === 6) type = 'wizard';
-			
+			if (i === 5) type = 'wizard';
 		
 			var soldier = new Soldier({
 				name: 		generator.getName(),
@@ -53,17 +54,14 @@ FireteamSchema.methods = {
 				},
 				gridPosition: {
 					x: i % 3,
-					y: Math.Round(i / 2)
+					y: Math.round(i / 2)
 				}
 			});
 			soldier.save();
-			this.soldiers[] = soldier._id;
+			this.soldiers.push(soldier._id);
 		}
-		
-		
+		return callback(null, this.soldiers);
 	}
-	
-	
 }
 // Set the model after we define some methods
 mongoose.model('Fireteam', FireteamSchema);

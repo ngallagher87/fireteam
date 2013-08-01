@@ -51,7 +51,7 @@ SoldierSchema.path('type').validate(function(value) {
 SoldierSchema.methods = {
 	// Calculates this soldiers damage
 	dealDamage: function() {
-		return Math.floor(Math.random() * this.stats.maxDamage ) + this.stats.minDamage;	
+		return Math.floor(Math.random() * this.stats.maxDamage ) + this.stats.minDamage;
 	},
 	// Add a method to check whether a soldier is dead or not
 	isDead: function() {
@@ -82,8 +82,8 @@ SoldierSchema.statics = {
 	// Loads a soldier based on an ID
 	load: function (id, callback) {
 		console.log("loading a soldier");
-		this.findOne({SoldierID: id}, function(err, soldier) { 
-			callback(err, soldier); 
+		this.findByID(id, function(err, soldier) {
+			callback(err, soldier);
 		});
 	}
 }

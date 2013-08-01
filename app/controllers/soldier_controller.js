@@ -2,9 +2,9 @@
 	Module dependencies
 */
 
-var mongoose 	= require('mongoose'),
-	async		= require('async'),
-	Soldier		= mongoose.model('Soldier');
+var mongoose = require('mongoose'),
+    async    = require('async'),
+    Soldier  = mongoose.model('Soldier');
 
 /**
 	Loads a soldier
@@ -13,8 +13,8 @@ var mongoose 	= require('mongoose'),
 exports.loadSoldier = function(id, callback) {
 	// Loads a soldier
 	try {
-		Soldier.findOne({ SoldierID: id }, function (err, soldier) {
-			if (err || soldier === null) { 
+		Soldier.load(id, function (err, soldier) {
+			if (err || soldier === null) {
 				err = "No soldier with id " + id + " found.\n";
 			}  else {
 				// Make sure you load a soldier at full hp

@@ -1,20 +1,20 @@
 // Program entry point
 
 // Load libraries
-var express 		= require('express'),
-	app 			= express(),
-	async 			= require('async'),
-	mongoose 		= require('mongoose'),
-	fs 				= require('fs'),
-	passport		= require('passport'),
-	GitHubStrategy 	= require('passport-github').Strategy;
+var express   = require('express'),
+    app       = express(),
+    async     = require('async'),
+    mongoose  = require('mongoose'),
+    fs        = require('fs'),
+    passport  = require('passport'),
+    ghStrat   = require('passport-github').Strategy;
 
 // Load the github client ID and client secret values
-// NOTE: These must exist for the app to work. 
+// NOTE: These must exist for the app to work.
 // They are not in source so ensure you create them or get them from someone!
 try {
 	var github_auth = JSON.parse(fs.readFileSync('github_auth.json'));
-} catch (e) {	
+} catch (e) {
 	console.log(e);
 	console.log('ERROR! GitHub auth file missing: cannot continue. '+
 				'Supply a github auth file that has client id and secret id to allow user login. '+
@@ -41,11 +41,11 @@ passport.deserializeUser(function(obj, done) {
     done(null, obj);
 });
 
-// Use the GitHubStrategy within Passport.
+// Use the ghStrat within Passport.
 //   Strategies in Passport require a `verify` function, which accept
 //   credentials (in this case, an accessToken, refreshToken, and GitHub
 //   profile), and invoke a callback with a user object.
-passport.use(new GitHubStrategy({
+passport.use(new ghStrat({
 		clientID: GITHUB_CLIENT_ID,
 		clientSecret: GITHUB_CLIENT_SECRET,
 		callbackURL: "http://127.0.0.1:3000/auth/github/callback"
@@ -98,7 +98,7 @@ passport.use(new GitHubStrategy({
 // Bootstrap models
 var models_path = __dirname + '/app/models',
   	model_files = fs.readdirSync(models_path);
- 
+
 model_files.forEach(function (file) {
     require(models_path+'/'+file);
 });

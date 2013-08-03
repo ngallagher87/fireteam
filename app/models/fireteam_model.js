@@ -3,7 +3,8 @@
 */
 
 var mongoose = require('mongoose'),
-  Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    Soldier  = mongoose.model('Soldier');
 
 // Init schema
 var FireteamSchema = new Schema({
@@ -21,9 +22,9 @@ FireteamSchema.methods = {
 
   generateDefaultTeam: function(callback) {
     var Soldier = mongoose.model('Soldier'),
-      generator = require('../utils/name_generator'),
-      i = 1,
-      type = 'warrior';
+        generator = require('../utils/name_generator'),
+        i = 1,
+        type = 'warrior';
     // Generate 5 soldiers for this fireteam
     // TODO: Make a function per soldier type for generation
     // Probably house that in the soldier model?
@@ -32,7 +33,7 @@ FireteamSchema.methods = {
       if (i < 3) type = 'warrior';
       if (i > 3 && i < 6) type = 'archer';
       if (i === 5) type = 'wizard';
-    
+
       var soldier = new Soldier({
         name:     generator.getName(),
         pointValue: 1,
@@ -61,7 +62,40 @@ FireteamSchema.methods = {
       this.soldiers.push(soldier._id);
     }
     return callback(null, this.soldiers);
+  },
+}
+
+/*
+   Methods
+*/
+FireteamSchema.methods = {
+  // Loads all soldiers related to this fireteam, then returns them in an array
+  loadSoldiers: function(callback) {
+    var soldiers = [],
+        i = 0,
+        err = null;
+    for (i; i < this.soldiers.length; i++) {
+      soldiers.push(Soldier.load(this.soldiers[i]));
+    }
+    if (soldiers.length === 0) {
+      err = 'No soldiers loaded.';
+    }
+    callback(err, soldiers);
   }
 }
+
+/*
+   Statics
+*/
+FireteamSchema.statics = {
+  // Loads a fireteam based on an ID
+  load: function (id, callback) {
+    console.log("loading fireteam "+id);
+    this.findByID(id, function(err, fireteam) {
+      callback(err, fireteam);
+    });
+  }
+}
+
 // Set the model after we define some methods
 mongoose.model('Fireteam', FireteamSchema);

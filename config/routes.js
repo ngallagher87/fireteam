@@ -7,27 +7,20 @@ var async = require('async');
 module.exports = function (app) {
   // Load our soldier route
   var soldier_ctrl  = require('../app/controllers/soldier_controller'),
+      battle_ctrl   = require('../app/controllers/battle_controller'),
       redGod        = require('../app/controllers/red_god'),
       passport      = require('passport');
 
   // Route to do our battling
   app.get('/battle', ensureAuthenticated, function(req, res) {
+    // TODO: matchmaking!
+
     // Parallel our call - first make 2 soldiers (requires db connection)
-    async.parallel([
-      function(callback) {
-        var soldier1 = soldier_ctrl.loadSoldier(1, callback);
-      },
-      function(callback) {
-        var soldier2 = soldier_ctrl.loadSoldier(2, callback);
-      }
-    ],
-    function (err, result) {
-       // result now has both our soldiers
-       // If it doesnt, output an error
+    battle_ctrl.startBattle(req.user.fireteam, req.user.fireteam, function(err, victor) {
        if (err || !result) {
-         res.send(err, 404);
+         res.send(err, 400);
        } else {
-         res.send(redGod.startBattle(result[0], result[1]) + " has won!\n\n", 200);
+         res.send(victor + " has won!\n\n", 200);
        }
     });
   });
@@ -46,7 +39,7 @@ module.exports = function (app) {
         var record1 = soldier_ctrl.showRecord(1, callback);
       },
       function(callback) {
-        var redord2 = soldier_ctrl.showRecord(2, callback);
+        var record2 = soldier_ctrl.showRecord(2, callback);
       }
     ],
     function (err, result) {

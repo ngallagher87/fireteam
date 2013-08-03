@@ -1,6 +1,6 @@
-/* 
+/*
   The red God manages all things battle related.
-  
+
   Here we're going to define our battle flow
 */
 var RedGod = (function() {
@@ -8,63 +8,55 @@ var RedGod = (function() {
   function RedGod() {
     // Init instance variables here
   }
-  
-  // Starts the battle between the two passed soldiers
-  RedGod.prototype.startBattle = function(soldier1, soldier2) {
-    this.victor = null;
-    console.log("The red god recieved 2 soldiers: " + 
-          soldier1.name + ", and " + soldier2.name);
+
+  // Starts the battle between the two passed fireteams
+  RedGod.prototype.startBattle = function(fireteam1, fireteam2, callback) {
+    console.log("The red god recieved 2 fireteams: " +
+          fireteam1.name + ", and " + fireteam1.name);
     // Initilize our combat variables here
     var order = [],
-      damage = 0,
-      i = 0,
-      target = {};
-    // loop until there is a sacrifice to the red god
-    while(!soldier1.isDead() && !soldier2.isDead()) {
+        damage = 0,
+        i = 0,
+        target = {},
+        team1 = [],
+        team2 = [],
+        victor = null;
+    // Load our teams here
+    fireteam1.loadSoldiers(function(err, team) {
+      if (err) {
+        throw new Exception('Couldn\'t load fireteam '+ fireteam1.name);
+      }
+      team1 = team;
+    });
+    fireteam2.loadSoldiers(function(err, team) {
+      if (err) {
+        throw new Exception('Couldn\'t load fireteam '+ fireteam2.name);
+      }
+      team2 = team;
+    });
+    // Keep battling until a team dies
+    // TODO: make this a real cobat sequence!
+    // while(!this.checkIfDefeated(team1) && !this.checkIfDefeated(team2)) {
+    while(victor == null) {
       console.log("================ Combat start ================");
       // Determine turn order
       // TODO: shell this out to a function
-      if(Math.random() > 0.5) 
-        order = [soldier1, soldier2];
+      if(Math.random() > 0.5)
+        victor = fireteam1.name;
       else
-        order = [soldier2, soldier1];
-      
-      // The core of the combat occurs here
-      for (i; i < order.length; i++) {
-        damage = order[i].dealDamage();
-        target = this.findTarget(order[i], order);
+        victor = fireteam2.name;
 
-        // First 1 attacks 2
-        target.takeDamage(damage);
-        order[i].record.dmgDone += damage;
-        
-        console.log(target.name + " has taken " + damage + " damage");
-        // Right now we only have 2 soldiers fighting
-        // So if one is dead, we have a winner
-        // TODO: Build a winning condition checking function
-        if (target.isDead()) break;
-      }
-      // Reset i
-      i = 0;
+      // The core of the combat occurs here
+      // TODO: put in real combat!
+
       console.log("=============== Turn complete =================");
-      console.log(soldier1.name + " has " + soldier1.stats.currentHP + " hp left.");
-      console.log(soldier2.name + " has " + soldier2.stats.currentHP + " hp left.");
     }
     // Combat has ended - find the winner
-    if(soldier1.isDead()) {
-      console.log(soldier2.name + " is the winner!");
-      victor = soldier2.name;
-      soldier2.record.kills++;
-    } else {
-      console.log(soldier1.name + " is the winner!");
-      victor = soldier1.name;
-      soldier1.record.kills++;
-    }
-    console.log("\n");
+
     // Save all record changes
-    soldier1.save();
-    soldier2.save();
-    return victor;
+    // soldier1.save();
+    // soldier2.save();
+    callback(null, victor);
   }
   // Finds the opponent this soldier would target
   RedGod.prototype.findTarget = function(soldier, order) {
@@ -72,10 +64,24 @@ var RedGod = (function() {
     // TODO: put real logic here, haha
     var i = 0;
     for (i; i < order.length; i++) {
-      if (soldier.name !== order[i].name) 
+      if (soldier.name !== order[i].name)
         return order[i];
     }
   }
+  /*
+    Checks if an array of soldiers has been defeated yet or not
+  */
+  RedGod.prototype.checkIfDefeated: function(soldiers) {
+    var i = 0,
+        dead = 0;
+    for (i; i < soldiers.length; i++) {
+      if (soldiers[i].isDead) {
+        dead++;
+      }
+    }
+    return dead === soldiers.length;
+  }
+
   // Return the object
   return new RedGod();
 })();

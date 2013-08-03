@@ -55,7 +55,7 @@ SoldierSchema.methods = {
   },
   // Add a method to check whether a soldier is dead or not
   isDead: function() {
-    if(this.stats.currentHP <= 0) {
+    if (this.stats.currentHP <= 0) {
       // This guy is dead
       this.record.deaths++;
       return true;

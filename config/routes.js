@@ -8,54 +8,40 @@ module.exports = function (app) {
   // Load our soldier route
   var soldier_ctrl  = require('../app/controllers/soldier_controller'),
       battle_ctrl   = require('../app/controllers/battle_controller'),
-      redGod        = require('../app/controllers/red_god'),
+      match_ctrl    = require('../app/controllers/match_controller'),
       passport      = require('passport');
 
   // Route to do our battling
-  app.get('/battle', ensureAuthenticated, function(req, res) {
-    // TODO: matchmaking!
-
-    // Parallel our call - first make 2 soldiers (requires db connection)
-    battle_ctrl.startBattle(req.user.fireteam, req.user.fireteam, function(err, victor) {
-       if (err || !result) {
-         res.send(err, 400);
-       } else {
-         res.send(victor + " has won!\n\n", 200);
-       }
+  app.get('/battle', ensureAuthenticated, function startBattle(req, res) {
+    // Find a fireteam to fight using our matchmaking controller
+    match_ctrl.findMatch(req.user.fireteam, function foundMatch(err, id) {
+	  if (err || typeof id === 'undefined') {
+		  res.send('Couldn\'t find a match...', 200);
+	  }
+	  // Now send those ID's to the battle controller and get a victor
+      battle_ctrl.startBattle(req.user.fireteam, id, function displayBattle(err, victor) {
+         if (err || !victor) {
+           res.send('Crap', 400);
+         } else {
+           res.send(victor + "\n\n", 200);
+         }
+      });
     });
-  });
-
-  // Create some soldiers
-  app.get('/save', ensureAuthenticated, function(req, res) {
-    soldier_ctrl.createSoldier(req, res, 1, "Hank");
-    soldier_ctrl.createSoldier(req, res, 2, "Urgramesh the Destroyer");
-    res.send("Created two soldiers.\n", 200);
   });
 
   // Route to show winner history
-  app.get('/winners', ensureAuthenticated, function(req, res) {
-    async.parallel([
-      function(callback) {
-        var record1 = soldier_ctrl.showRecord(1, callback);
-      },
-      function(callback) {
-        var record2 = soldier_ctrl.showRecord(2, callback);
-      }
-    ],
-    function (err, result) {
-      // Respond with the results
-      res.send(JSON.stringify(result[0], null, 4) + "\n" + JSON.stringify(result[1], null, 4), 200);
-    });
+  app.get('/winners', ensureAuthenticated, function showWinners(req, res) {
+      res.send('Winners are cool', 200);
   });
 
   // Note:
   // Passport code taken from https: //github.com/jaredhanson/passport-github/blob/master/examples/login/app.js
   // All credits go to Jared Hanson for this auth code
-  app.get('/account', ensureAuthenticated, function(req, res){
+  app.get('/account', ensureAuthenticated, function getAccount(req, res){
     res.render('account', { user: req.user });
   });
 
-  app.get('/login', function(req, res){
+  app.get('/login', function getLogin(req, res){
     res.render('login', { user: req.user });
   });
 
@@ -82,13 +68,13 @@ module.exports = function (app) {
       res.redirect('/battle');
   });
 
-  app.get('/logout', function(req, res){
+  app.get('/logout', function getLogout(req, res){
     req.logout();
     res.redirect('/login');
   });
 
   // 404 handler
-  app.get('*', function(req, res) {
+  app.get('*', function what404(req, res) {
     res.send('404 - what???', 404);
   });
 

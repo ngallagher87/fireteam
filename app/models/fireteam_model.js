@@ -3,8 +3,7 @@
 */
 
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema,
-    Soldier  = mongoose.model('Soldier');
+    Schema = mongoose.Schema;
 
 // Init schema
 var FireteamSchema = new Schema({
@@ -66,32 +65,13 @@ FireteamSchema.methods = {
 }
 
 /*
-   Methods
-*/
-FireteamSchema.methods = {
-  // Loads all soldiers related to this fireteam, then returns them in an array
-  loadSoldiers: function(callback) {
-    var soldiers = [],
-        i = 0,
-        err = null;
-    for (i; i < this.soldiers.length; i++) {
-      soldiers.push(Soldier.load(this.soldiers[i]));
-    }
-    if (soldiers.length === 0) {
-      err = 'No soldiers loaded.';
-    }
-    callback(err, soldiers);
-  }
-}
-
-/*
    Statics
 */
 FireteamSchema.statics = {
   // Loads a fireteam based on an ID
   load: function (id, callback) {
     console.log("loading fireteam "+id);
-    this.findByID(id, function(err, fireteam) {
+    this.find({_id : id}, function(err, fireteam) {
       callback(err, fireteam);
     });
   }

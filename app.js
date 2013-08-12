@@ -22,8 +22,8 @@ try {
   process.exit(1);
 }
 
-var GITHUB_CLIENT_ID = github_auth.client_id
-  GITHUB_CLIENT_SECRET = github_auth.client_secret;
+var GITHUB_CLIENT_ID = github_auth.client_id,
+    GITHUB_CLIENT_SECRET = github_auth.client_secret;
 
 
 // Passport session setup.

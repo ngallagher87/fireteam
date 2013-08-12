@@ -36,16 +36,11 @@ If you're running this local, server = `127.0.0.1`
 
 	http://SERVER:3000/battle
 	
-> Does a small battle between Harry and Urrgramash _(spelling?)_ the Destroyer.
+> Finds an opposing fireteam to fight, and battles them! Actually right now it doesn't do anything, as I haven't coded the battle logic yet.
 
 	http://SERVER:3000/winners
 	
-> Lists the current stats for each warrior
-
-	http://SERVER:3000/save
-	
-> Saves 2 warriors, Hank and Urrgramash to the database. Calling this twice saves multiples of the same soldier, so I advise you to only run this once (don't worry I'll change this later to be nicer).
-
+> Lists the current stats for each warrior (right now it actually lists nothing... just some default text).
 
 
 

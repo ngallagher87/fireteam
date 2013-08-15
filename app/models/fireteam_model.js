@@ -34,16 +34,15 @@ FireteamSchema.methods = {
       if (i === 5) type = 'wizard';
 
       var soldier = new Soldier({
-        name:     generator.getName(),
+        name: generator.getName(),
         pointValue: 1,
         type: type,
         stats: {
-          level:    1,
-          maxHP:    40,
-          currentHP:  40,
-          minDamage:  10,
-          maxDamage:  15,
-          exp:    0
+          maxHP:    Math.floor(Math.random() * 15 ) + 50,
+          currentHP:  1,
+          attack: Math.floor(Math.random() * 10 ) + 5,
+          defence: Math.floor(Math.random() * 5 ) + 1,
+          speed: Math.floor(Math.random() * 4 ) + 1
         },
         record: {
           kills:    0,

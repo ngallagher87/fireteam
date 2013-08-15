@@ -50,7 +50,7 @@ SoldierSchema.path('type').validate(function(value) {
 SoldierSchema.methods = {
   // Calculates this soldiers damage
   dealDamage: function() {
-    return Math.floor(Math.random() * this.stats.maxDamage ) + this.stats.minDamage;
+    return Math.floor(Math.random() * this.stats.attack ) + Math.random() * this.stats.attack / 4;
   },
   // Add a method to check whether a soldier is dead or not
   isDead: function() {
@@ -69,8 +69,9 @@ SoldierSchema.methods = {
   },
   // Take damage
   takeDamage: function(amount) {
-    this.stats.currentHP -= amount;
-    this.record.dmgTaken += amount;
+    var dmg = amount / (this.stats.defence/2);
+    this.stats.currentHP -= dmg;
+    this.record.dmgTaken += dmg;
   }
 }
 

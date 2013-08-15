@@ -7,27 +7,26 @@ var mongoose = require('mongoose'),
 
 // Init schema
 var SoldierSchema = new Schema({
-  name:     String,
-  pointValue: Number,
-  type:   String,
+  name:         String,
+  pointValue:   Number,
+  type:         String,
   stats: {
-    level:    Number,
-    maxHP:    Number,
+    maxHP:      Number,
     currentHP:  Number,
-    minDamage:  Number,
-    maxDamage:  Number,
-    exp:    Number
+    attack:     Number,
+    defence:    Number,
+    speed:      Number
   },
   record: {
-    kills:    Number,
-    deaths:   Number,
-    dmgDone:  Number,
-    dmgTaken: Number,
-    hpRecovered: Number
+    kills:      Number,
+    deaths:     Number,
+    dmgDone:    Number,
+    dmgTaken:   Number,
+    hpRecovered:Number
   },
   gridPosition: {
-    x: Number,
-    y: Number
+    x:          Number,
+    y:          Number
   }
 }, { collection : 'Soldier' });
 

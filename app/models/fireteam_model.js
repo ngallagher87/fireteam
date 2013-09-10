@@ -34,16 +34,15 @@ FireteamSchema.methods = {
       if (i === 5) type = 'wizard';
 
       var soldier = new Soldier({
-        name:     generator.getName(),
+        name: generator.getName(),
         pointValue: 1,
         type: type,
         stats: {
-          level:    1,
-          maxHP:    40,
-          currentHP:  40,
-          minDamage:  10,
-          maxDamage:  15,
-          exp:    0
+          maxHP:    Math.floor(Math.random() * 15 ) + 50,
+          currentHP:  1,
+          attack: Math.floor(Math.random() * 10 ) + 5,
+          defence: Math.floor(Math.random() * 5 ) + 1,
+          speed: Math.floor(Math.random() * 4 ) + 1
         },
         record: {
           kills:    0,
@@ -72,7 +71,10 @@ FireteamSchema.statics = {
   load: function (id, callback) {
     console.log("loading fireteam "+id);
     this.find({_id : id}, function(err, fireteam) {
-      callback(err, fireteam);
+      if (err || !fireteam) {
+        console.log('Ohh no theres no fireteam with an ID of %s', id);
+      }
+      callback(err, fireteam[0]);
     });
   }
 }

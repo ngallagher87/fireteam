@@ -15,17 +15,18 @@ module.exports = function (app) {
   app.get('/battle', ensureAuthenticated, function startBattle(req, res) {
     // Find a fireteam to fight using our matchmaking controller
     match_ctrl.findMatch(req.user.fireteam, function foundMatch(err, id) {
-	  if (err || typeof id === 'undefined') {
-		  res.send('Couldn\'t find a match...', 200);
-	  }
-	  // Now send those ID's to the battle controller and get a victor
-      battle_ctrl.startBattle(req.user.fireteam, id, function displayBattle(err, victor) {
-         if (err || !victor) {
-           res.send('Crap', 400);
-         } else {
-           res.send(victor + "\n\n", 200);
-         }
-      });
+  	  if (err || typeof id === 'undefined') {
+  		  res.send('Couldn\'t find a match...', 200);
+  	  } else {
+  	  // Now send those ID's to the battle controller and get a victor
+        battle_ctrl.startBattle(req.user.fireteam, id, function displayBattle(err, victor) {
+           if (err || !victor) {
+             res.send('Crap', 400);
+           } else {
+             res.send(victor + "\n\n", 200);
+           }
+        });
+      }
     });
   });
 

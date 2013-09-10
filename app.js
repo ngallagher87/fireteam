@@ -53,7 +53,7 @@ passport.use(new ghStrat({
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
       process.nextTick(function () {
-        User = mongoose.model('User');
+      User = mongoose.model('User');
       // Here we recieved the GitHub profile of the user.
       // Now we need to check if there is a user record tied to this email address
       // If there is, return the user profile
@@ -61,11 +61,17 @@ passport.use(new ghStrat({
       User.findOne({ email: profile.emails[0].value  }, function (err, foundUser) {
           if (err || foundUser === null) {
             console.log('creating new user/fireteam');
+          
+          console.log(profile);
+          // Generate a display name
+          var displayName = profile.displayName;
+          if (typeof displayName === 'undefined')
+            displayName = profile.name + '\'s';
           // This user doesn't exist, so create them
           newUser = new User({
             email: profile.emails[0].value,
             name: profile.name,
-            displayName: profile.displayName,
+            displayName: displayName,
             profile: profile
           });
           // Create a fireteam for the new user

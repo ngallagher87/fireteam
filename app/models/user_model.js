@@ -7,13 +7,8 @@ var mongoose = require('mongoose'),
 
 // Init schema
 var UserSchema = new Schema({
-  email:    {   
-          type: String, 
-          required: true, 
-          index: { unique: true }, 
-          validate: /\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}\b/ 
-        },
-  name:   { type: String },
+  email:    { type: String},
+  name:     { type: String },
   displayName:{ type: String },
   profile:  { type: Object },
   barracks: { type: Schema.Types.ObjectId, ref: 'Barracks' },

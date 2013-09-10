@@ -71,7 +71,10 @@ FireteamSchema.statics = {
   load: function (id, callback) {
     console.log("loading fireteam "+id);
     this.find({_id : id}, function(err, fireteam) {
-      callback(err, fireteam);
+      if (err || !fireteam) {
+        console.log('Ohh no theres no fireteam with an ID of %s', id);
+      }
+      callback(err, fireteam[0]);
     });
   }
 }

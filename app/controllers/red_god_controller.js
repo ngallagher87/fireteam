@@ -3,6 +3,9 @@
 
   Here we're going to define our battle flow
 */
+var mongoose = require('mongoose'),
+    async    = require('async');
+
 var red_god = (function() {
   // Creates a red god
   function red_god() {
@@ -10,68 +13,160 @@ var red_god = (function() {
   }
 
   // Starts the battle between the two passed fireteams
-  red_god.prototype.startBattle = function startBattle(fireteam1, fireteam2, callback) {
+  red_god.prototype.startBattle = function(fireteam1, fireteam2, endBattle) {
     // Battle loop is here!
     // Determine turn order
     var finished = false,
         combatLog = [],
-        roundCounter = 0;
-    
-    while (!finished) {
-      // Get a stack for turn order
-      var teamOne = this.getTurnOrder(fireteam1),
-          teamTwo = this.getTurnOrder(fireteam2),
-          round = true;
-      
-      while (round) {
-        // Loop thru order
-        var attackerOne = teamOne.shift(),
-            attackerTwo = teamTwo.shift();
+        roundCounter = 1,
+        winner = 0,
+        // Store function scope for async
+        turnOrder = this.getTurnOrder,
+        findTarget = this.findTarget,
+        isDefeated = this.checkIfDefeated;
         
-        var first = null,
-            second = null,
-            order = [];
-        // Sort out who goes when
-        if (attackerOne.stats.speed > attackerTwo.stats.speed) {
-          first = attackerOne;
-          second = attackerTwo;
-          order = [fireteam2, fireteam1];
-        } else {
-          first = attackerTwo;
-          second = attackerOne;
-          order = [fireteam1,fireteam2];
-        }
-        // Find targets
-        firsts_enemy = this.findTarget(first, order[0]);
-        seconds_enemy = this.findTarget(second, order[1]);
-        
-        // Create a combat function for out soldiers to duke it out in!
-        function dukeItOut(attacker, defender) {
-          if (!attacker.isDead()) {
-            var attack = attacker.dealDamage();
-            defender.takeDamage();
-            combatLog[] = attacker.name + ' deals ' + attack + ' to ' + defender.name;
-            if (defender.isDead()) 
-              combatLog[] = defender.name ' has been slain by ' + attacker.name;
+    console.log('Combat started');
+    async.whilst(
+      function () { return finished == false; },
+      function (roundCallback) {
+        var teamOne = turnOrder(fireteam1),
+            teamTwo = turnOrder(fireteam2),
+            teamOneUsed = [],
+            teamTwoUsed = [],
+            round = true,
+            turnCount = 0;
+        console.log('\n==========\nNew round beginning\n==========\n');
+        async.whilst(
+          function () { return turnCount < 5; }, // TODO: get an accurate round length variable
+          function (turnCallback) {
+            turnCount++;
+            // Get the current soldiers for this turn, then store them in the used array
+            var attackerOne = teamOne.shift(),
+                attackerTwo = teamTwo.shift();
+            teamOneUsed.push(attackerOne);
+            teamTwoUsed.push(attackerTwo);
+            
+            // Init order variables
+            var first = null,
+                second = null,
+                order = [],
+                fullTeamOne = fireteam1.concat(teamOneUsed),
+                fullTeamTwo = fireteam2.concat(teamTwoUsed);
+            // Sort out who goes when
+            var oneFirst = false;
+            // First we check if the first soldier is faster
+            if (attackerOne.stats.speed > attackerTwo.stats.speed) 
+              oneFirst = true;
+             // If they have the same speed, do a speed tie check (50/50 chance to go first)
+            else if (attackerOne.stats.speed === attackerTwo.stats.speed) 
+              oneFirst = Math.round(Math.random() * 100) > 50;
+            // He is slower, so he goes 2nd
+            else 
+              oneFirst = false;
+            
+            // Now apply the current turn order here
+            if (oneFirst) {
+              first = attackerOne;
+              second = attackerTwo;
+              order = [fullTeamTwo, fullTeamOne];
+            } else {
+              first = attackerTwo;
+              second = attackerOne;
+              order = [fullTeamOne, fullTeamTwo];
+            }
+            // Find targets 
+            firsts_enemy = findTarget(first, order[0]);
+            seconds_enemy = findTarget(second, order[1]);
+            
+            // Create a function we can run to see if there is a winner
+            function evalVictory() {
+              if (!finished) {
+                // Check if team one is defeated
+                isDefeated(fullTeamOne, function(err, defeated) {
+                  if (defeated) {
+                    finished = true;
+                    winner = 1;
+                    console.log('Team 1 is the winner!');
+                    roundCallback(null);
+                  }
+                  else {
+                    // Check if team 2 is defeated
+                    isDefeated(fullTeamTwo, function(err, defeated) {
+                      if (defeated) {
+                        finished = true;
+                        winner = 2;
+                        console.log('Team 2 is the winner!');
+                        roundCallback(null);
+                      }
+                    });
+                  }
+                });
+              } 
+            }
+            // Create a combat function for our soldiers to duke it out in!
+            function dukeItOut(attacker, defender) {
+              if (!attacker.isDead()) {
+                // Attacker does damage
+                var attack = attacker.dealDamage(function(dmg) {
+                  // We have dmg amount, so apply that to the soldier
+                  defender.takeDamage(dmg, function(defendedDmg) {
+                    // Defender has had a chance to defend, store dmg amount for soldier
+                    attacker.statDamage(defendedDmg);
+                    console.log(attacker.name + ' deals ' + defendedDmg + ' to ' + defender.name);
+                  });
+                  if (defender.isDead()) 
+                    console.log(defender.name + ' has been slain by ' + attacker.name);
+                    // On death, see if there is a winner or not
+                    evalVictory();
+                });
+              }
+            }
+            // Run our battle commands in series to prevent silly things
+            async.series([
+              function(callback) {
+                if (typeof first === 'undefined' || typeof firsts_enemy === 'undefined' || finished)
+                  evalVictory();
+                else
+                  callback(null, dukeItOut(first, firsts_enemy));
+              },
+              function(callback) {
+                if (typeof second === 'undefined' || typeof seconds_enemy === 'undefined' || finished)
+                  evalVictory();
+                else
+                  callback(null, dukeItOut(second, seconds_enemy));
+              },
+              function(callback) {
+                callback(null, evalVictory());
+              }
+            ], function(err, res) {
+              // Combat is done, so head back to the top of the loop
+              turnCallback(err);
+            });
+          },
+          // Round is complete
+          function (err) {
+            console.log('Round '+ roundCounter +' is over');
+            roundCounter++;
+            fireteam1 = teamOneUsed;
+            fireteam2 = teamTwoUsed;
+            // Loop to a new round
+            roundCallback(err);
           }
-        }
-        // Perform actions
-        dukeItOut(first, firsts_enemy);
-        dukeItOut(second, seconds_enemy);
-        // Check to see if this round is done
-        round = teamOne.length == 0 && teamTwo.length == 0;
-        
-        if (!round) roundCounter++;
+        );
+      },
+      // Combat is complete
+      function (err) {
+        // Battle loop is finished!
+        // Round loop is complete
+        combatLog = 'Winner is team #'+winner; //TODO: implement combat log and return it correctly
+        // Trigger the callback if we're done
+        console.log('This combat took ' + roundCounter + ' rounds to complete.');
+    	  endBattle(null, combatLog);
       }
-      // Check if a team is defeated
-      finished = this.checkIfDefeated(fireteam1) || this.checkIfDefeated(fireteam2);
-    }
-    combatLog[] = 'This combat took ' + roundCounter + ' rounds to complete';
-    callback(null, combatLog);
+    );
   }
-  
-  // Generates turn order for a combt round
-  red_god.prototype.getTurnOrder(team) {
+  // Generates turn order for a combat round
+  red_god.prototype.getTurnOrder = function(team) {
     function compare(a,b) {
       if (a.stats.speed < b.stats.speed)
          return -1;
@@ -79,11 +174,11 @@ var red_god = (function() {
          return 1;
       return 0;
     }
-	  return team.sort(compare);
+    return team.sort(compare);
   }
   
   // Finds the opponent this soldier would target
-  red_god.prototype.findTarget = function findTarget(soldier, team) {
+  red_god.prototype.findTarget = function(soldier, team) {
     // Right now this basically finds the first enemy that isn't dead...
     // TODO: put real logic here, haha
     var i = 0;
@@ -95,17 +190,20 @@ var red_god = (function() {
   /*
     Checks if an array of soldiers has been defeated yet or not
   */
-  red_god.prototype.checkIfDefeated = function checkIfDefeated(team) {
+  red_god.prototype.checkIfDefeated = function(team, callback) {
     var i = 0,
-        dead = 0;
-    for (i; i < team.length; i++) {
-      if (team[i].isDead) {
+        dead = 0,
+        isDefeated = false;
+    async.each(team, function(soldier, cb) {
+       if (soldier.isDead()) {
         dead++;
+        isDefeated = (dead == team.length);
       }
-    }
-    return dead === team.length;
+      cb(null);
+    }, function (err) {
+      callback(err, isDefeated);
+    });
   }
-
   // Return the object
   return new red_god();
 })();

@@ -15,10 +15,14 @@ var findMatch = function findMatch(ref_id, callback) {
                 .where('_id').ne(ref_id);
   // Now generate the query results and trigger the callback
   query.select('_id')
-       .exec(function findMatchQuery(err, fireteam) {
-         if (err) console.log(err);
-         callback(err, fireteam._id);
-       });
+        .exec(function findMatchQuery(err, fireteam) {
+          if (err || fireteam == null) {
+            err = 'No match found!';
+            callback(err, null);
+          } else {
+            callback(err, fireteam._id);
+          }
+        });
 }
 
 /**

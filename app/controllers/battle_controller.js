@@ -17,23 +17,21 @@ var loadSoldiers = function loadSoldier(fireteam_id, callback) {
       if (err || fireteam === null) {
         err = "No firetam with id " + id + " found.\n";
       } else {
-        team = fireteam;
+        // Populate a soldier array
+        var soldiers = [],
+            i = 0,
+            err = null;
+        async.forEach(fireteam.soldiers, function(id, cb) {
+          Soldier.load(id, function loadSoldierBattle(err, soldier) {
+              soldiers.push(soldier);
+              cb();
+            }
+          );
+        }, function(err) {
+          callback(err, soldiers);
+        });
       }
   });
-
-  if (team != null) {
-    var soldiers = [],
-        i = 0,
-        err = null;
-    for (i; i < team.soldiers.length; i++) {
-      soldiers.push(Soldier.load(team.soldiers[i]));
-    }
-    if (soldiers.length === 0) {
-      err = 'No soldiers loaded.';
-    }
-    team = soldiers;
-  }
-  callback(err, team);
 }
 
 /**

@@ -3,7 +3,8 @@
 */
 
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    async = require('async');
 
 // Init schema
 var SoldierSchema = new Schema({
@@ -27,7 +28,10 @@ var SoldierSchema = new Schema({
   gridPosition: {
     x:          Number,
     y:          Number
-  }
+  },
+  behaviours: [
+    {type: String}
+  ]
 }, { collection : 'Soldier' });
 
 /*
@@ -85,6 +89,42 @@ SoldierSchema.methods = {
   // Add to this soldiers damage done amount
   statDamage: function(amount) {
     this.record.dmgDone += amount;
+  },
+  // Gets a soldiers grid position
+  getPosition: function() {
+    return this.gridPosition;
+  },
+  /* 
+    Moves a soldier to a grid position
+    Requires the requested x and y coordinates
+    An array of their teammates (soldiers)
+    A callback
+  
+    The callback will contain an error if there was one, 
+    and true/false if the move was successful
+  */
+  moveSoldier: function(x, y, teammates, callback) {
+    var err = null;
+    if ((x > 3 || y > 3) && (x < 0 || y < 0)) {
+      err = 'Out of bounds move';
+      callback(err, false);
+    } else {
+      async.each(teammates, function(soldier, cb) {
+        var pos = soldier.getPosition();
+        if (pos.x == x || pos.y == y) {
+          err = 'Cannot move soldier - this space is occupied';
+          cb(err, null);
+        }
+      }, function (err) {
+        if (err) {
+          callback(err, false);
+        } else {
+          this.gridPosition.x = x;
+          this.gridPosition.y = y;
+          callback(null, true);
+        }
+      });
+    }
   }
 }
 

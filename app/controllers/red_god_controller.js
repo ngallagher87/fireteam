@@ -20,6 +20,7 @@ var red_god = (function() {
         combatLog = [],
         roundCounter = 1,
         winner = 0,
+        roundLength = Math.max(fireteam1.length, fireteam2.length);
         // Store function scope for async
         turnOrder = this.getTurnOrder,
         findTarget = this.findTarget,
@@ -37,7 +38,7 @@ var red_god = (function() {
             turnCount = 0;
         console.log('\n==========\nNew round beginning\n==========\n');
         async.whilst(
-          function () { return turnCount < 5; }, // TODO: get an accurate round length variable
+          function () { return turnCount < roundLength; },
           function (turnCallback) {
             turnCount++;
             // Get the current soldiers for this turn, then store them in the used array
@@ -191,8 +192,7 @@ var red_god = (function() {
     Checks if an array of soldiers has been defeated yet or not
   */
   red_god.prototype.checkIfDefeated = function(team, callback) {
-    var i = 0,
-        dead = 0,
+    var dead = 0,
         isDefeated = false;
     async.each(team, function(soldier, cb) {
        if (soldier.isDead()) {

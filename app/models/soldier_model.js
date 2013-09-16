@@ -125,6 +125,10 @@ SoldierSchema.methods = {
         }
       });
     }
+  },
+  // Checks if a soldier has a behaviour
+  hasBehaviour: function(behaviour) {
+    return this.behaviours.indexOf(behaviour) > -1;
   }
 }
 

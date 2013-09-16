@@ -37,3 +37,28 @@ _< None > (this will get more in the future)_
 The red god will broadcast when these hooks occur. Soldiers at the beginning of the battle will add the appropriate listener to the appropriate hook.
 
 When a hook fires and a match is found, the behaviour will trigger and the effects will be applied to the battle.
+
+# Current behaviours
+
+## Attacking
+
+### Ally heal
+
+For: Wizard
+
+Once per battle a wizard can heal an ally for 50% of the allys max HP. This occurs instead of the wizards attack for the current round.
+
+### Volley
+
+For: Archer
+
+Neighbour archers gain a free attack when this archer attacks.
+
+## Defending
+
+### Guard ally
+
+For: Warrior
+
+When a neighbour is attacked, a warrior can take the damage for that unit once per defensive round.
+

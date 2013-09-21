@@ -5,7 +5,7 @@
 */
 var mongoose      = require('mongoose'),
     async         = require('async'),
-    battleEvents  = require('battle_events_controller');
+    battleEvents  = require('./battle_events_controller');
 
 var red_god = (function() {
   // Creates a red god
@@ -51,7 +51,7 @@ var red_god = (function() {
                   attackerTwo = teamTwo.shift();
               teamOneUsed.push(attackerOne);
               teamTwoUsed.push(attackerTwo);
-              
+
               // Init order variables
               var first = null,
                   second = null,
@@ -116,7 +116,7 @@ var red_god = (function() {
                   var attack = attacker.dealDamage(function(dmg) {
                     // TODO: we need to see if the defender has a neighbour that will defend him.
                     // To do this, we need to ask the battle_event handler if this is possible.
-                    battleEvents.check('guardAlly', defender, defSide, function(err, target){
+                    battleEvents.check('guardAlly', defender, defSide, function(err, target) {
                        // We have dmg amount, so apply that to the soldier
                       target.takeDamage(dmg, function(defendedDmg) {
                         // Defender has had a chance to defend, store dmg amount for soldier

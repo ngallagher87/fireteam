@@ -2,21 +2,20 @@
   Battle events is an arm of the red god - it handles our in-battle events
 */
 var mongoose  = require('mongoose'),
-    async     = require('async'),
-    events    = require('events');
+    async     = require('async');
 
-var behaviours = (function() {
+var combatBehaviours = (function() {
 
-  function behaviours() {
+  function combatBehaviours() {
     // Init instance variables here
   }
   /*
     Causes the soldier to defend the ally
   */
-  behaviours.prototype.guardAlly = function(soldier, ally, callback) {
+  combatBehaviours.prototype.guardAlly = function(soldier, ally, callback) {
     this.isNeighbour(soldier, ally, function(isNeighbour) {
       if (isNeighbour) {
-        console.log('\nEVENT\n' + soldier.name ' has guarded ally ' + ally.name);
+        console.log('\nEVENT\n' + soldier.name + ' has guarded ally ' + ally.name);
         callback(null, soldier, true);
       } else {
         // Don't guard the ally!
@@ -27,13 +26,13 @@ var behaviours = (function() {
   /*
     Causes all archers in the array to attack
   */
-  behaviours.prototype.volley = function(archers, callback) {
+  combatBehaviours.prototype.volley = function(archers, callback) {
     
   }
   /*
     Causes the soldier to heal the ally
   */
-  behaviours.prototype.allyHeal = function(soldier, ally, callback) {
+  combatBehaviours.prototype.allyHeal = function(soldier, ally, callback) {
     
   }
   
@@ -43,7 +42,7 @@ var behaviours = (function() {
   /*
     Checks if two soldiers are neighbours
   */
-  behaviours.prototype.isNeighbour = function(one, two, callback) {
+  combatBehaviours.prototype.isNeighbour = function(one, two, callback) {
     var onePos = one.getPosition(),
         twoPos = two.getPosition();
     if (Math.abs(onePos.x - twoPos.x) > 1) {
@@ -53,7 +52,7 @@ var behaviours = (function() {
     }
   }
   // Return the object
-  return new behaviours();
+  return new combatBehaviours();
 })();
 // Export the red god for node
-module.exports = behaviours;
+module.exports = combatBehaviours;

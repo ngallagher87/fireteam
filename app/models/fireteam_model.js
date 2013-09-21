@@ -29,20 +29,37 @@ FireteamSchema.methods = {
     // Probably house that in the soldier model?
     for (i; i <= 5; i++) {
       // Generate types
-      if (i < 3) type = 'warrior';
-      if (i > 3 && i < 6) type = 'archer';
-      if (i === 5) type = 'wizard';
-
-      var soldier = new Soldier({
+      if (i < 3) { 
+        this.generateWarrior(i % 3, Math.round(i / 2), function(err, soldier){
+          this.soldiers.push(soldier._id);
+        });
+      }
+      if (i > 3 && i < 6) { 
+        this.generateArcher(i % 3, Math.round(i / 2), function(err, soldier){
+          this.soldiers.push(soldier._id);
+        });
+      }
+      if (i === 5) { 
+        this.generateWizard(i % 3, Math.round(i / 2), function(err, soldier){
+          this.soldiers.push(soldier._id);
+        });
+      }
+    }
+    return callback(null, this.soldiers);
+  },
+  generateWarrior: function(xPos, yPos, callback) {
+    var stats = this.calcStats('warrior');
+    
+    var warrior = new Soldier({
         name: generator.getName(),
         pointValue: 1,
         type: type,
         stats: {
-          maxHP:    Math.floor(Math.random() * 15 ) + 50,
+          maxHP:    Math.floor(Math.random() * 20 ) + 55,
           currentHP:  1,
-          attack: Math.floor(Math.random() * 10 ) + 5,
-          defence: Math.floor(Math.random() * 5 ) + 1,
-          speed: Math.floor(Math.random() * 4 ) + 1
+          attack: stats.attack,
+          defence: stats.defence,
+          speed: stats.speed
         },
         record: {
           kills:    0,
@@ -52,15 +69,119 @@ FireteamSchema.methods = {
           hpRecovered:0
         },
         gridPosition: {
-          x: i % 3,
-          y: Math.round(i / 2)
-        }
+          x: xPos,
+          y: yPos
+        },
+        behaviours: [
+          'guardAlly'
+        ]
       });
-      soldier.save();
-      this.soldiers.push(soldier._id);
-    }
-    return callback(null, this.soldiers);
+      warrior.save();
+      callback(null, warrior);
   },
+  generateWizard: function(xPos, yPos, callback) {
+    var stats = this.calcStats('wizard');
+  
+    var wizard = new Soldier({
+        name: generator.getName(),
+        pointValue: 1,
+        type: type,
+        stats: {
+          maxHP:    Math.floor(Math.random() * 15 ) + 35,
+          currentHP:  1,
+          attack: stats.attack,
+          defence: stats.defence,
+          speed: stats.speed
+        },
+        record: {
+          kills:    0,
+          deaths:   0,
+          dmgDone:  0,
+          dmgTaken: 0,
+          hpRecovered:0
+        },
+        gridPosition: {
+          x: xPos,
+          y: yPos
+        },
+        behaviours: [
+          'allyHeal'
+        ]
+      });
+      wizard.save();
+      callback(null, wizard);
+  },
+  generateArcher: function(xPos, yPos, callback) {
+    var stats = this.calcStats('archer');
+  
+    var archer = new Soldier({
+        name: generator.getName(),
+        pointValue: 1,
+        type: type,
+        stats: {
+          maxHP:    Math.floor(Math.random() * 15 ) + 30,
+          currentHP:  1,
+          attack: stats.attack,
+          defence: stats.defence,
+          speed: stats.speed
+        },
+        record: {
+          kills:    0,
+          deaths:   0,
+          dmgDone:  0,
+          dmgTaken: 0,
+          hpRecovered:0
+        },
+        gridPosition: {
+          x: xPos,
+          y: yPos
+        },
+        behaviours: [
+          'volley'
+        ]
+      });
+      archer.save();
+      callback(null, archer);
+  },
+  // Generates default stats
+  calcStats: function(type) {
+     var max = 10,
+        attack = 0,
+        defence = 0,
+        speed = 0;
+
+    attack = Math.floor(Math.random() * max) + 1;
+    var attRemainder = max - attack;
+    
+    defence = Math.floor(Math.random() * max) + 1;
+    var defRemainder = max - defence;
+    defence += attRemainder;
+    
+    speed = Math.floor(Math.random() * max) + 1;
+    speed += defRemainder;
+    
+    var diff = (max*3) - (attack + defence + speed);
+    
+    var bonus = Math.floor(Math.random() * 4) + 1;
+    switch (bonus) {
+        case 1: attack += diff; break;
+        case 2: defence += diff; break;
+        case 3: speed += diff; break;
+        case 4: var s = Math.floor(diff/3);
+                attack += s;
+                defence += s;
+                speed += s;
+                break;
+    }
+    var typeBonus = 10;
+    switch (type) {
+      case 'warrior': defence += typeBonus; break;
+      case 'wizard': speed += typeBonus/2; attack += typeBonus/2; break;
+      case 'archer': attack += typeBonus; break;
+    }
+    
+    return {attack: attack, defence: defence, speed: speed};
+  }
 }
 
 /*

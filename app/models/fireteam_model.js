@@ -55,7 +55,7 @@ FireteamSchema.methods = {
         pointValue: 1,
         type: type,
         stats: {
-          maxHP:    Math.floor(Math.random() * 20 ) + 55,
+          maxHP: Math.floor(Math.random() * 20 ) + 55,
           currentHP:  1,
           attack: stats.attack,
           defence: stats.defence,
@@ -144,25 +144,41 @@ FireteamSchema.methods = {
       callback(null, archer);
   },
   // Generates default stats
-  calcStats: function(type) {
-     var max = 10,
+  function calc(type) {
+    // Add a function that ensures no stat goes below 0
+    function basement(val) {
+      return val < 0 ? 0 : val;   
+    }
+    
+    var max = 10,
+        typeBonus = 5,
+        attBonus = 0,
+        defBonus = 0,
+        spdBonus = 0,
         attack = 0,
         defence = 0,
         speed = 0;
-
-    attack = Math.floor(Math.random() * max) + 1;
+    // Cause class to influence the type bonus
+    switch (type) {
+        case 'warrior': defBonus = typeBonus; break;
+        case 'wizard' : spdBonus = typeBonus; break;
+        case 'archer' : attBonus = typeBonus; break;
+    }
+    // Generate some stats!
+    attack = Math.floor(Math.random() * max) + (3 + attBonus);
     var attRemainder = max - attack;
     
-    defence = Math.floor(Math.random() * max) + 1;
+    defence = Math.floor(Math.random() * max) + (1 + defBonus);
     var defRemainder = max - defence;
-    defence += attRemainder;
+    defence = basement(attRemainder + defence);
     
-    speed = Math.floor(Math.random() * max) + 1;
-    speed += defRemainder;
+    speed = Math.floor(Math.random() * (max - 2)) + (1 + spdBonus);
+    speed = basement(defRemainder + speed);
     
     var diff = (max*3) - (attack + defence + speed);
     
     var bonus = Math.floor(Math.random() * 4) + 1;
+    // Apply any left over stats at random
     switch (bonus) {
         case 1: attack += diff; break;
         case 2: defence += diff; break;
@@ -173,13 +189,7 @@ FireteamSchema.methods = {
                 speed += s;
                 break;
     }
-    var typeBonus = 10;
-    switch (type) {
-      case 'warrior': defence += typeBonus; break;
-      case 'wizard': speed += typeBonus/2; attack += typeBonus/2; break;
-      case 'archer': attack += typeBonus; break;
-    }
-    
+
     return {attack: attack, defence: defence, speed: speed};
   }
 }

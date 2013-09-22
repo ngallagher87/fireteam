@@ -144,7 +144,7 @@ FireteamSchema.methods = {
       callback(null, archer);
   },
   // Generates default stats
-  function calc(type) {
+  function calcStats(type) {
     /*
       NOTE:
       There is a testbed for this code. 
@@ -198,7 +198,9 @@ FireteamSchema.methods = {
                 break;
     }
 
-    return {attack: attack, defence: defence, speed: speed};
+    return {  attack: attack, 
+              defence: defence, 
+              speed: speed };
   }
 }
 

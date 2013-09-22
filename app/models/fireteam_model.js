@@ -144,14 +144,14 @@ FireteamSchema.methods = {
       callback(null, archer);
   },
   // Generates default stats
-  function calcStats(type) {
+  calcStats: function (type) {
     /*
       NOTE:
       There is a testbed for this code. 
       If you want to easily test this and make changes,
       visit this link:
       
-      http://jsfiddle.net/ngallagher87/h6Sz4/
+      http://jsfiddle.net/ngallagher87/h6Sz4/1/
     */
     // Add a function that ensures no stat goes below 0
     function basement(val) {

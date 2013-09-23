@@ -121,11 +121,13 @@ var red_god = (function() {
                       target.takeDamage(dmg, function(defendedDmg) {
                         // Defender has had a chance to defend, store dmg amount for soldier
                         attacker.statDamage(defendedDmg);
+                        attacker.save();
                         console.log(attacker.name + ' deals ' + 
                                     defendedDmg + ' to ' + target.name);
                       });
                       if (target.isDead()) { 
                         console.log(target.name + ' has been slain by ' + attacker.name);
+                        target.save();
                         // On death, see if there is a winner or not
                         evalVictory();
                       }

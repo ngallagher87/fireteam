@@ -3,7 +3,9 @@
 */
 
 var mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    generator = require('../utils/name_generator'),
+    async = require('async');
 
 // Init schema
 var FireteamSchema = new Schema({
@@ -21,39 +23,58 @@ FireteamSchema.methods = {
 
   generateDefaultTeam: function(callback) {
     var Soldier = mongoose.model('Soldier'),
-        generator = require('../utils/name_generator'),
         i = 1,
-        type = 'warrior';
+        type = 'warrior',
+        soldiers = [];
+        
+    var warrior = this.generateWarrior,
+        archer = this.generateArcher,
+        wizard = this.generateWizard,
+        stats = this.calcStats;
     // Generate 5 soldiers for this fireteam
-    // TODO: Make a function per soldier type for generation
-    // Probably house that in the soldier model?
-    for (i; i <= 5; i++) {
-      // Generate types
-      if (i < 3) { 
-        this.generateWarrior(i % 3, Math.round(i / 2), function(err, soldier){
-          this.soldiers.push(soldier._id);
+    // Run this in parallel for speed considerations
+    async.parallel([
+      function(cb) {
+        warrior(1, 1, Soldier, stats, function(err, soldier){
+          soldiers.push(soldier._id);
+          cb(null);
+        });
+      },
+      function(cb) {
+        warrior(2, 1, Soldier, stats, function(err, soldier){
+          soldiers.push(soldier._id);
+          cb(null);
+        });
+      },
+      function(cb) {
+        archer(2, 1, Soldier, stats, function(err, soldier){
+          soldiers.push(soldier._id);
+          cb(null);
+        });
+      },
+      function(cb) {
+        archer(2, 2, Soldier, stats, function(err, soldier){
+          soldiers.push(soldier._id);
+          cb(null);
+        });
+      },
+      function(cb) {
+        wizard(3, 2, Soldier, stats, function(err, soldier){
+          soldiers.push(soldier._id);
+          cb(null);
         });
       }
-      if (i > 3 && i < 6) { 
-        this.generateArcher(i % 3, Math.round(i / 2), function(err, soldier){
-          this.soldiers.push(soldier._id);
-        });
-      }
-      if (i === 5) { 
-        this.generateWizard(i % 3, Math.round(i / 2), function(err, soldier){
-          this.soldiers.push(soldier._id);
-        });
-      }
-    }
-    return callback(null, this.soldiers);
+    ], function(err, res){
+      callback(null, soldiers);
+    });
   },
-  generateWarrior: function(xPos, yPos, callback) {
-    var stats = this.calcStats('warrior');
+  generateWarrior: function(xPos, yPos, Soldier, stats, callback) {
+    var stats = stats('warrior');
     
     var warrior = new Soldier({
         name: generator.getName(),
         pointValue: 1,
-        type: type,
+        type: 'warrior',
         stats: {
           maxHP: Math.floor(Math.random() * 20 ) + 55,
           currentHP:  1,
@@ -79,13 +100,13 @@ FireteamSchema.methods = {
       warrior.save();
       callback(null, warrior);
   },
-  generateWizard: function(xPos, yPos, callback) {
-    var stats = this.calcStats('wizard');
+  generateWizard: function(xPos, yPos, Soldier, stats, callback) {
+    var stats = stats('wizard');
   
     var wizard = new Soldier({
         name: generator.getName(),
         pointValue: 1,
-        type: type,
+        type: 'wizard',
         stats: {
           maxHP:    Math.floor(Math.random() * 15 ) + 35,
           currentHP:  1,
@@ -111,13 +132,13 @@ FireteamSchema.methods = {
       wizard.save();
       callback(null, wizard);
   },
-  generateArcher: function(xPos, yPos, callback) {
-    var stats = this.calcStats('archer');
+  generateArcher: function(xPos, yPos, Soldier, stats, callback) {
+    var stats = stats('archer');
   
     var archer = new Soldier({
         name: generator.getName(),
         pointValue: 1,
-        type: type,
+        type: 'archer',
         stats: {
           maxHP:    Math.floor(Math.random() * 15 ) + 30,
           currentHP:  1,
@@ -151,7 +172,7 @@ FireteamSchema.methods = {
       If you want to easily test this and make changes,
       visit this link:
       
-      http://jsfiddle.net/ngallagher87/h6Sz4/1/
+      http://jsfiddle.net/ngallagher87/h6Sz4/
     */
     // Add a function that ensures no stat goes below 0
     function basement(val) {

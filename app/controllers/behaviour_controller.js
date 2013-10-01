@@ -10,18 +10,22 @@ var combatBehaviours = (function() {
     // Init instance variables here
   }
   /*
-    Causes the soldier to defend the ally
+    Checks if the ally will guard the soldier
   */
   combatBehaviours.prototype.guardAlly = function(soldier, ally, callback) {
-    this.isNeighbour(soldier, ally, function(isNeighbour) {
-      if (isNeighbour) {
-        console.log('\nEVENT\n' + soldier.name + ' has guarded ally ' + ally.name);
-        callback(null, soldier, true);
-      } else {
-        // Don't guard the ally!
-        callback(null, ally, false);
-      }
-    });
+    if (!soldier.isDead() && !ally.isDead() && ally.hasBehaviour('guardAlly')) {
+      this.isNeighbour(soldier, ally, function(isNeighbour) {
+        if (isNeighbour) {
+          console.log('EVENT:: ' + ally.name + ' has guarded ally ' + soldier.name + '\n');
+          callback(null, ally, true);
+        } else {
+          // The ally won't defend this soldier
+          callback(null, soldier, false);
+        }
+      });
+    } else {
+      callback(null, soldier, false);
+    }
   }
   /*
     Causes all archers in the array to attack
@@ -45,11 +49,9 @@ var combatBehaviours = (function() {
   combatBehaviours.prototype.isNeighbour = function(one, two, callback) {
     var onePos = one.getPosition(),
         twoPos = two.getPosition();
-    if (Math.abs(onePos.x - twoPos.x) > 1) {
-      callback(true);
-    } else {
-      callback(false);
-    }
+        
+    var isNeighbour = (Math.abs(onePos.y - twoPos.y) === 1) && (onePos.x === twoPos.x);
+    callback(isNeighbour);
   }
   // Return the object
   return new combatBehaviours();

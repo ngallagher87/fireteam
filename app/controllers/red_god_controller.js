@@ -88,8 +88,8 @@ var red_god = (function() {
               function evalVictory() {
                 if (!finished) {
                   // Check if team one is defeated
-                  isDefeated(fullTeamOne, function(err, defeated) {
-                    if (defeated) {
+                  isDefeated(fullTeamOne, function(err, one_defeated) {
+                    if (one_defeated) {
                       finished = true;
                       winner = 1;
                       console.log('Team 1 is the winner!');
@@ -97,8 +97,8 @@ var red_god = (function() {
                     }
                     else {
                       // Check if team 2 is defeated
-                      isDefeated(fullTeamTwo, function(err, defeated) {
-                        if (defeated) {
+                      isDefeated(fullTeamTwo, function(err, two_defeated) {
+                        if (two_defeated) {
                           finished = true;
                           winner = 2;
                           console.log('Team 2 is the winner!');
@@ -110,29 +110,33 @@ var red_god = (function() {
                 } 
               }
               // Create a combat function for our soldiers to duke it out in!
-              function dukeItOut(attacker, defender, attSide, defSide) {
+              function dukeItOut(attacker, defender, defSide, attSide) {
                 if (!attacker.isDead()) {
                   // Attacker does damage
                   var attack = attacker.dealDamage(function(dmg) {
+                    console.log('Defenders name is %s', defender.name);
+                    console.log('Attackers name is %s', attacker.name);
                     // TODO: we need to see if the defender has a neighbour that will defend him.
                     // To do this, we need to ask the battle_event handler if this is possible.
                     battleEvents.check('guardAlly', defender, defSide, function(err, target) {
-                       // We have dmg amount, so apply that to the soldier
+                      console.log('Targets name is %s', target.name);
+                      // We have dmg amount, so apply that to the soldier
                       target.takeDamage(dmg, function(defendedDmg) {
                         // Defender has had a chance to defend, store dmg amount for soldier
                         attacker.statDamage(defendedDmg);
                         attacker.save();
-                        console.log(attacker.name + ' deals ' + 
-                                    defendedDmg + ' to ' + target.name);
+                        // Check if the target is dead here
+                        if (target.isDead()) {
+                          console.log(target.name + ' has been slain by ' + attacker.name);
+                          target.save();
+                          // On death, see if there is a winner or not
+                          evalVictory();
+                        }
                       });
-                      if (target.isDead()) { 
-                        console.log(target.name + ' has been slain by ' + attacker.name);
-                        target.save();
-                        // On death, see if there is a winner or not
-                        evalVictory();
-                      }
                     });
                   });
+                } else {
+                  evalVictory();
                 }
               }
               // Run our battle commands in series to prevent silly things

@@ -87,6 +87,7 @@ passport.use(new ghStrat({
             // Wait til we generate the team until we save the user
             console.log(soldiers);
             newUser.fireteam = newFire._id;
+            newFire.soldiers = soldiers;
             newFire.save();
             newUser.save();
             return done(null, newUser);

@@ -4,7 +4,7 @@
 var mongoose    = require('mongoose'),
     async       = require('async'),
     events      = require('events'),
-    behaviours  = require('./behaviour_controller'); 
+    combatBehaviours  = require('./behaviour_controller'); 
 
 var battleEvents = (function() {
 
@@ -13,12 +13,20 @@ var battleEvents = (function() {
     events.EventEmitter.call(this);
     this.one = {};
     this.two = {};
+    
+    function initContainers(team) {
+	    team.guardAlly = [];
+	    team.volley = [];
+	    team.allyHeal = [];
+	    return team;
+    }
+    this.one = initContainers(this.one);
+    this.two = initContainers(this.two);
   }
 
   battleEvents.prototype.init = function(teamOne, teamTwo, callback) {
     // Create a function that will store all our behaviours 
-    function storeBehaviours(soldier, side, stored) {
-      var team = side === 1 ? this.one : this.two;
+    function storeBehaviours(soldier, team, stored) {
       async.each(soldier.behaviours, function(behaviour, cb) {
         switch (behaviour) {
           case 'guardAlly':   team.guardAlly.push(soldier); break;
@@ -30,12 +38,13 @@ var battleEvents = (function() {
         stored(null);
       });
     }
+    var self = this;
     // Store our teams behaviours in collections
     async.parallel([
       function(callb) {
         // Here we'll note down any behaviours.
         async.each(teamOne, function(soldier, cb) {
-            storeBehaviours(soldier, 1, function(err) {    
+            storeBehaviours(soldier, self.one, function(err) {    
               cb(null);
             });
         }, function(err) {
@@ -46,7 +55,7 @@ var battleEvents = (function() {
       function(callb) {
         // Here we'll note down any behaviours.
         async.each(teamTwo, function(soldier, cb) {
-            storeBehaviours(soldier, 2, function(err) {    
+            storeBehaviours(soldier, self.two, function(err) {    
               cb(null);
             });
         }, function(err) {
@@ -60,14 +69,18 @@ var battleEvents = (function() {
   }
   battleEvents.prototype.check = function(behaviour, soldier, side, callback) {
     // Check for defender logic
-    if (behaviour === 'guardAlly' && soldier.hasBehaviour(behaviour)) {
+    if (behaviour === 'guardAlly' && !soldier.isDead()) {
       var defender = null; 
-      async.each(side, function(ally, cb){
-        behaviours.guardAlly(ally, soldier, function(err, target, guard) {
-          if (guard) {
-            defender = target;
-          }
-        })
+      async.each(side, function(ally, cb) {
+        // Ensure we dont guardAlly ourself!
+        //if (ally._id !== soldier._id) {
+          combatBehaviours.guardAlly(soldier, ally, function(err, target, guard) {
+            if (guard) {
+              defender = target;
+            }
+            cb(null);
+          });
+       // } else cb('Cannot defend self');
       }, function(err) {
         if (defender == null) callback(err, soldier);
         else callback(err, defender);

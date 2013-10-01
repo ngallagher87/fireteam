@@ -80,7 +80,7 @@ SoldierSchema.methods = {
   },
   // Take damage
   takeDamage: function(amount, callback) {
-    var dmg = Math.floor(amount / (this.stats.defence/2));
+    var dmg = Math.round(amount / (this.stats.defence/4));
     this.stats.currentHP -= dmg;
     this.record.dmgTaken += dmg;
     console.log('%s takes %s dmg', this.name, dmg);

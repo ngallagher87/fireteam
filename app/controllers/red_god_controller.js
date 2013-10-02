@@ -114,9 +114,8 @@ var red_god = (function() {
                 if (!attacker.isDead()) {
                   // Attacker does damage
                   var attack = attacker.dealDamage(function(dmg) {
-                    console.log('Defenders name is %s', defender.name);
                     console.log('Attackers name is %s', attacker.name);
-                    // TODO: we need to see if the defender has a neighbour that will defend him.
+                    // We need to see if the defender has a neighbour that will defend him.
                     // To do this, we need to ask the battle_event handler if this is possible.
                     battleEvents.check('guardAlly', defender, defSide, function(err, target) {
                       console.log('Targets name is %s', target.name);
@@ -139,21 +138,22 @@ var red_god = (function() {
                   evalVictory();
                 }
               }
+              // Simple function that validates some params, then calls into dukeItOut()
+              function battleWrapper(soldier, enemy, enemySide, soldierSide, cb) {
+                 if (typeof soldier === 'undefined' || 
+                      typeof enemy === 'undefined' || finished) {
+                    evalVictory();
+                  }
+                  else cb(null, dukeItOut(soldier, enemy, enemySide, soldierSide));
+              }
               // Run our battle commands in series to prevent silly things
               async.series([
+                // First
                 function(callback) {
-                  team = oneFirst ? 1 : 2;
-                  if (typeof first === 'undefined' || typeof firsts_enemy === 'undefined' || finished)
-                    evalVictory();
-                  else
-                    callback(null, dukeItOut(first, firsts_enemy, order[0], order[1]));
+                  battleWrapper(first, firsts_enemy, order[0], order[1], callback);
                 },
                 function(callback) {
-                  team = oneFirst ? 2 : 1;
-                  if (typeof second === 'undefined' || typeof seconds_enemy === 'undefined' || finished)
-                    evalVictory();
-                  else
-                    callback(null, dukeItOut(second, seconds_enemy, order[1], order[0]));
+                  battleWrapper(second, seconds_enemy, order[1], order[0], callback);
                 },
                 function(callback) {
                   callback(null, evalVictory());

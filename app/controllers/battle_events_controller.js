@@ -72,15 +72,12 @@ var battleEvents = (function() {
     if (behaviour === 'guardAlly' && !soldier.isDead()) {
       var defender = null; 
       async.each(side, function(ally, cb) {
-        // Ensure we dont guardAlly ourself!
-        //if (ally._id !== soldier._id) {
-          combatBehaviours.guardAlly(soldier, ally, function(err, target, guard) {
-            if (guard) {
-              defender = target;
-            }
-            cb(null);
-          });
-       // } else cb('Cannot defend self');
+        combatBehaviours.guardAlly(soldier, ally, function(err, target, guard) {
+          if (guard) {
+            defender = target;
+          }
+          cb(null);
+        });
       }, function(err) {
         if (defender == null) callback(err, soldier);
         else callback(err, defender);

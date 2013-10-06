@@ -30,7 +30,16 @@ var SoldierSchema = new Schema({
     y:          Number
   },
   behaviours: [
-    {type: String}
+    {
+      name:     String,
+      conditions: 
+        {
+          target:   String,
+          stat:     String,
+          operator: String,
+          value:    String
+        }
+    }
   ]
 }, { collection : 'Soldier' });
 
@@ -65,12 +74,7 @@ SoldierSchema.methods = {
   },
   // Add a method to check whether a soldier is dead or not
   isDead: function() {
-    if (this.stats.currentHP <= 0) {
-      // This guy is dead
-      this.record.deaths++;
-      return true;
-    }
-    return false;
+    return this.stats.currentHP <= 0;
   },
   // Adds the ability to heal a soldier. Soldiers cannot be healed more than their max hp
   heal: function(amount) {
@@ -83,6 +87,10 @@ SoldierSchema.methods = {
     var dmg = Math.round(amount / (this.stats.defence/4));
     this.stats.currentHP -= dmg;
     this.record.dmgTaken += dmg;
+    if (this.isDead()) {
+      // This guy is dead
+      this.record.deaths++;
+    }
     console.log('%s takes %s dmg', this.name, dmg);
     callback(dmg);
   },
@@ -127,8 +135,26 @@ SoldierSchema.methods = {
     }
   },
   // Checks if a soldier has a behaviour
-  hasBehaviour: function(behaviour) {
-    return this.behaviours.indexOf(behaviour) > -1;
+  hasBehaviour: function(behaviour, callback) {
+    var hasBehaviour = false;
+    async.each(this.behaviours, function(item, cb) {
+      if (item.name === behaviour) hasBehaviour = true;
+      cb(null);
+    }, function(err) {
+      callback(err, hasBehaviour);
+    });
+  },
+  // Returns the conditions for a specified behaviour, or null if no conditions found
+  getConditions: function(behaviour, callback) {
+    var conditions = null;
+    async.each(this.behaviours, function(item, cb) {
+      if (item.name === behaviour) {
+        conditions = item.conditions;
+      }
+      cb(null);
+    }, function(err) {
+      callback(err, conditions);
+    });
   }
 }
 

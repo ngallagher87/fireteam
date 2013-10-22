@@ -38,6 +38,10 @@ var SoldierSchema = new Schema({
           stat:     String,
           operator: String,
           value:    String
+        },
+        cooldown: {
+          type:     String,
+          active:   Boolean
         }
     }
   ]
@@ -144,17 +148,29 @@ SoldierSchema.methods = {
       callback(err, hasBehaviour);
     });
   },
-  // Returns the conditions for a specified behaviour, or null if no conditions found
-  getConditions: function(behaviour, callback) {
-    var conditions = null;
-    async.each(this.behaviours, function(item, cb) {
-      if (item.name === behaviour) {
-        conditions = item.conditions;
+  // Returns the behaviour specified. If no behaviour is present, returns null
+  getBehaviour: function(behaviour, callback) {
+    this.hasBehaviour(behaviour, function(err, hasBehaviour){
+      if (hasBehaviour) {
+        // The soldier has this behaviour, lets go find it and return it
+        var b = null;
+        async.each(this.behaviours, function(item, cb) {
+          if (item.name === behaviour) {
+            b = item;
+          }
+          cb(null);
+        }, function(err) {
+          if (b == null) err = 'Behaviour '+behaviour+' not found';
+          callback(err, b);
+        });
+      // This soldier doesn't have the requested behaviour
+      } else {
+         callback('Behaviour '+behaviour+' not found', null);
       }
-      cb(null);
-    }, function(err) {
-      callback(err, conditions);
     });
+  },
+  updateBehaviour: function(name, target, stat, operator, value) {
+    
   }
 }
 

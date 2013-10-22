@@ -15,10 +15,10 @@ var battleEvents = (function() {
     this.two = {};
     
     function initContainers(team) {
-	    team.guardAlly = [];
-	    team.volley = [];
-	    team.allyHeal = [];
-	    return team;
+      team.guardAlly = [];
+      team.volley = [];
+      team.allyHeal = [];
+      return team;
     }
     this.one = initContainers(this.one);
     this.two = initContainers(this.two);
@@ -85,12 +85,6 @@ var battleEvents = (function() {
     } else {
       callback(null, soldier);
     }
-  }
-  /*
-    Checks if an array of soldiers has been defeated yet or not
-  */
-  battleEvents.prototype.doSomething = function() {
-    
   }
   // Apply the eventEmitter prototype here
   battleEvents.prototype.__proto__ = events.EventEmitter.prototype;

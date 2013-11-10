@@ -1,4 +1,22 @@
-<p>ID: <%= user._id %></p>
-<p>Username: <%= user.username %></p>
-<p>Name: <%= user.displayName %></p>
-<p>Email: <%= user.email %></p>
+<% include header.html %>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <h1>Account </h1>
+    
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        Info
+      </div>
+      <div class="panel-body">
+        <ul>
+          <li><label>Username: </label> <%= user.username %></li>
+          <li><label>Name: </label> <%= user.displayName %></li>
+          <li><label>Email: </label> <%= user.email %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% include footer.html %>

@@ -150,11 +150,12 @@ SoldierSchema.methods = {
   },
   // Returns the behaviour specified. If no behaviour is present, returns null
   getBehaviour: function(behaviour, callback) {
-    this.hasBehaviour(behaviour, function(err, hasBehaviour){
+    var self = this;
+    self.hasBehaviour(behaviour, function(err, hasBehaviour) {
       if (hasBehaviour) {
         // The soldier has this behaviour, lets go find it and return it
         var b = null;
-        async.each(this.behaviours, function(item, cb) {
+        async.each(self.behaviours, function(item, cb) {
           if (item.name === behaviour) {
             b = item;
           }

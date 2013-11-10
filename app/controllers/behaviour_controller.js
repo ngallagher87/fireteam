@@ -13,14 +13,15 @@ var combatBehaviours = (function() {
     Checks if the ally will guard the soldier
   */
   combatBehaviours.prototype.guardAlly = function(soldier, ally, callback) {
+    var self = this;
     if (!soldier.isDead() && !ally.isDead()) {
       ally.hasBehaviour('guardAlly', function(err, hasGuard) {
         if (hasGuard) {
-          this.isNeighbour(soldier, ally, function(isNeighbour) {
+          self.isNeighbour(soldier, ally, function(isNeighbour) {
               if (isNeighbour) {
                 ally.getBehaviour('guardAlly', function(err, behaviour) {
                   // Check if the allys conditions allow for guarding this soldier
-                  var willGuard = this.checkBehaviour(behaviour, ally, soldier, null, null);
+                  var willGuard = self.checkBehaviour(behaviour, ally, soldier, null, null);
                   if (willGuard) {
                     // The ally will guard this soldier
                     console.log('EVENT:: ' + ally.name + ' has guarded ally ' + soldier.name + '\n');
@@ -84,7 +85,7 @@ var combatBehaviours = (function() {
           'less':     function(a, b) { return a < b},
           'equal':    function(a, b) { return a == b},
           'not equal':function(a, b) { return a != b}
-        }
+        };
     // Populates the target
     switch (behaviour.target) {
       case 'self': context.target = self; break;
@@ -119,7 +120,7 @@ var combatBehaviours = (function() {
         break;
     }
     // Takes all the contextual variables and compares them
-    return ops[behaviour.operator](context.stat, context.value);
+    return ops[behaviour.conditions.operator](context.stat, context.value);
   }
   // Return the object
   return new combatBehaviours();

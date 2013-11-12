@@ -23,7 +23,7 @@ module.exports = function (app) {
            if (err || !victor) {
              res.send('Crap', 400);
            } else {
-             res.send(victor + "\n\n", 200);
+             res.render('battle', { winner: victor });
            }
         });
       }

@@ -36,11 +36,7 @@ If you're running this local, server = `127.0.0.1`
 
 	http://SERVER:3000/battle
 	
-> Finds an opposing fireteam to fight, and battles them! Actually right now it doesn't do anything, as I haven't coded the battle logic yet.
-
-	http://SERVER:3000/winners
-	
-> Lists the current stats for each warrior (right now it actually lists nothing... just some default text).
+> Finds an opposing fireteam to fight, and battles them! The view just says who won and who lost... but if you look at the node console there will be details on what happened in the fight.
 
 
 

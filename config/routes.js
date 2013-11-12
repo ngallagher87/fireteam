@@ -9,6 +9,7 @@ module.exports = function (app) {
   var soldier_ctrl  = require('../app/controllers/soldier_controller'),
       battle_ctrl   = require('../app/controllers/battle_controller'),
       match_ctrl    = require('../app/controllers/match_controller'),
+      team_ctrl     = require('../app/controllers/fireteam_controller'),
       passport      = require('passport');
 
   // Route to do our battling
@@ -18,7 +19,7 @@ module.exports = function (app) {
   	  if (err || typeof id === 'undefined') {
   		  res.send('Couldn\'t find a match...', 200);
   	  } else {
-  	  // Now send those ID's to the battle controller and get a victor
+  	    // Now send those ID's to the battle controller and get a victor
         battle_ctrl.startBattle(req.user.fireteam, id, function displayBattle(err, victor) {
            if (err || !victor) {
              res.send('Crap', 400);
@@ -31,8 +32,15 @@ module.exports = function (app) {
   });
 
   // Route to show winner history
-  app.get('/winners', ensureAuthenticated, function showWinners(req, res) {
-      res.send('Winners are cool', 200);
+  app.get('/team', ensureAuthenticated, function (req, res) {
+    // Load a fireteam
+    battle_ctrl.loadSoldiers(req.user.fireteam, function showTeam(err, team) {
+       if (err || !team) {
+         res.send('Crap', 400);
+       } else {
+         res.render('team', { soldiers: team });
+       }
+    });	  
   });
 
   // Note:

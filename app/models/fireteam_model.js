@@ -94,7 +94,20 @@ FireteamSchema.methods = {
           y: yPos
         },
         behaviours: [
-          'guardAlly'
+          {
+            name: 'guardAlly',
+            conditions: 
+              {
+                target:   'neighbour',
+                stat:     'HP',
+                operator: 'less',
+                value:    '75%'
+              },
+              cooldown: {
+                type:     'round',
+                active:   false
+              }
+          }
         ]
       });
       warrior.save();
@@ -126,7 +139,20 @@ FireteamSchema.methods = {
           y: yPos
         },
         behaviours: [
-          'allyHeal'
+           {
+            name: 'allyHeal',
+            conditions: 
+              {
+                target:   'team',
+                stat:     'HP',
+                operator: 'less',
+                value:    '25%'
+              },
+              cooldown: {
+                type:     'combat',
+                active:   true
+              }
+          }
         ]
       });
       wizard.save();
@@ -158,7 +184,20 @@ FireteamSchema.methods = {
           y: yPos
         },
         behaviours: [
-          'volley'
+          {
+            name: 'volley',
+            conditions: 
+              {
+                target:   'mine',
+                stat:     'HP',
+                operator: 'greater',
+                value:    '25%'
+              },
+              cooldown: {
+                type:     'round',
+                active:   true
+              }
+          }
         ]
       });
       archer.save();

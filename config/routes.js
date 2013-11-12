@@ -74,7 +74,7 @@ module.exports = function (app) {
   app.get('/auth/github/callback',
     passport.authenticate('github', { failureRedirect: '/login' }),
     function(req, res) {
-      res.redirect('/battle');
+      res.redirect('/account');
   });
 
   app.get('/logout', function getLogout(req, res){

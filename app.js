@@ -7,7 +7,8 @@ var express   = require('express'),
     mongoose  = require('mongoose'),
     fs        = require('fs'),
     passport  = require('passport'),
-    ghStrat   = require('passport-github').Strategy;
+    ghStrat   = require('passport-github').Strategy,
+    engine    = require('ejs-locals');
 
 // Load the github client ID and client secret values
 // NOTE: These must exist for the app to work.
@@ -113,7 +114,7 @@ model_files.forEach(function (file) {
 // Configure express
 app.set('views', __dirname + '/views');
 app.set('view engine', 'html');
-app.engine('.html', require('ejs').__express);
+app.engine('.html', engine);
 app.use(express.logger());
 app.use(express.cookieParser());
 app.use(express.bodyParser());

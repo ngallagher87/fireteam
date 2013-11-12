@@ -9,7 +9,6 @@ module.exports = function (app) {
   var soldier_ctrl  = require('../app/controllers/soldier_controller'),
       battle_ctrl   = require('../app/controllers/battle_controller'),
       match_ctrl    = require('../app/controllers/match_controller'),
-      team_ctrl     = require('../app/controllers/fireteam_controller'),
       passport      = require('passport');
 
   // Route to do our battling

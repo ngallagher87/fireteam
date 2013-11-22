@@ -35,8 +35,19 @@ UserSchema.statics = {
     this.findOne({email: profile.email}), function(err, user) {
       callback(err, user);
     }
+  },
+  // Finds a user record
+  findID: function (id, callback) {
+    this.find({_id: id}), function(err, user) {
+      if (err || !user) {
+        console.log('Ohh no theres no user with an ID of %s', id);
+      }
+      callback(err, user[0]);
+    }
   }
 }
+
+
 
 // Set the model after we define some methods
 mongoose.model('User', UserSchema);

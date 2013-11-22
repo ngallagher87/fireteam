@@ -10,6 +10,16 @@ var express   = require('express'),
     ghStrat   = require('passport-github').Strategy,
     engine    = require('ejs-locals');
 
+// Bootstrap models
+var models_path = __dirname + '/app/models',
+    model_files = fs.readdirSync(models_path);
+
+model_files.forEach(function (file) {
+    require(models_path+'/'+file);
+});
+
+var user_ctrl = require('./app/controllers/user_controller');
+
 // Load the github client ID and client secret values
 // NOTE: These must exist for the app to work.
 // They are not in source so ensure you create them or get them from someone!
@@ -26,20 +36,14 @@ try {
 var GITHUB_CLIENT_ID = github_auth.client_id,
     GITHUB_CLIENT_SECRET = github_auth.client_secret;
 
-
-// Passport session setup.
-//   To support persistent login sessions, Passport needs to be able to
-//   serialize users into and deserialize users out of the session.  Typically,
-//   this will be as simple as storing the user ID when serializing, and finding
-//   the user by ID when deserializing.  However, since this example does not
-//   have a database of user records, the complete GitHub profile is serialized
-//   and deserialized.
 passport.serializeUser(function(user, done) {
-  done(null, user);
+  done(null, user.id);
 });
 
-passport.deserializeUser(function(obj, done) {
-    done(null, obj);
+passport.deserializeUser(function(id, done) {
+  user_ctrl.findID(id, function(err, user) {
+    done(err, user);
+  })
 });
 
 // Use the ghStrat within Passport.
@@ -103,23 +107,15 @@ passport.use(new ghStrat({
   }
 ));
 
-// Bootstrap models
-var models_path = __dirname + '/app/models',
-    model_files = fs.readdirSync(models_path);
-
-model_files.forEach(function (file) {
-    require(models_path+'/'+file);
-});
-
 // Configure express
 app.set('views', __dirname + '/views');
 app.set('view engine', 'html');
 app.engine('.html', engine);
 app.use(express.logger());
-app.use(express.cookieParser());
+app.use(express.cookieParser('nuclear goat'));
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.session({ secret: 'nuclear goat' }));
+app.use(express.session());
 // Initialize Passport!  Also use passport.session() middleware, to support
 // persistent login sessions (recommended).
 app.use(passport.initialize());

@@ -6,26 +6,33 @@
       Account Info
     </div>
     <div class="panel-body">
-      <form class="form-horizontal">
+      <form class="form-horizontal" action="/account" method="post">
         <div class="form-group">
           <label for="username" class="col-lg-2 control-label">Username</label>
           <div class="col-lg-10">
-            <input type="text" class="form-control" id="username" placeholder="Username"
-            value="<%= user.profile.username %>">
+            <input type="text" class="form-control" id="username" name="profile[username]"
+            		placeholder="Username"  value="<%= user.profile.username %>">
           </div>
         </div>
         <div class="form-group">
           <label for="displayName" class="col-lg-2 control-label">Display Name</label>
           <div class="col-lg-10">
-            <input type="text" class="form-control" id="inputEmail" placeholder="Display name"
-            value="<%= user.displayName %>">
+            <input type="text" class="form-control" id="displayName" name="displayName"
+            		placeholder="Display name" value="<%= user.displayName %>">
           </div>
         </div>
         <div class="form-group">
           <label for="inputEmail" class="col-lg-2 control-label">Email</label>
           <div class="col-lg-10">
-            <input type="text" class="form-control" id="inputEmail" placeholder="Email"
-            value="<%= user.email %>">
+            <input type="text" class="form-control" id="email" name="email"
+            		placeholder="Email" value="<%= user.email %>">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-lg-10">
+            <button type="submit" class="btn btn-success">
+            	Save account information
+            </button>
           </div>
         </div>
       </form>

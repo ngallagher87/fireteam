@@ -1,7 +1,6 @@
 /*
   Defines the routes for our app
 */
-
 var async = require('async');
 
 module.exports = function (app) {
@@ -9,6 +8,7 @@ module.exports = function (app) {
   var soldier_ctrl  = require('../app/controllers/soldier_controller'),
       battle_ctrl   = require('../app/controllers/battle_controller'),
       match_ctrl    = require('../app/controllers/match_controller'),
+      user_ctrl     = require('../app/controllers/user_controller'),
       passport      = require('passport');
 
   // Route to do our battling
@@ -45,8 +45,25 @@ module.exports = function (app) {
   // Note:
   // Passport code taken from https: //github.com/jaredhanson/passport-github/blob/master/examples/login/app.js
   // All credits go to Jared Hanson for this auth code
-  app.get('/account', ensureAuthenticated, function getAccount(req, res){
+  app.get('/account', ensureAuthenticated, function getAccount(req, res) {
     res.render('account', { user: req.user });
+  });
+  
+  // POST /account
+  // Updates a user account
+  app.post('/account', ensureAuthenticated, function postAccount(req, res) {
+    var body = req.body;
+    
+    user_ctrl.findID(req.user._id, function accountUser(err, user) {
+      if (err || !user) {
+        res.send('Crap', 400);
+      }
+      user.displayName = body.displayName;
+      user.profile.username = body.profile.username;
+      user.email = body.email;
+      user.save();
+      res.redirect('/account');
+    });
   });
 
   app.get('/login', function getLogin(req, res){

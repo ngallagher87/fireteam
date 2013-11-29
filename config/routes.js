@@ -109,6 +109,9 @@ module.exports = function (app) {
     res.redirect('/login');
   });
 
+  app.get('/', ensureAuthenticated, function(req, res) {
+    req.redirect('/account');
+  });
   // 404 handler
   app.get('*', function what404(req, res) {
     res.send('404 - what???', 404);

@@ -29,16 +29,27 @@ module.exports = function (app) {
       }
     });
   });
+  
+  app.get('/team', ensureAuthenticated, function(rew, res) {
+    res.redirect('/team/first');
+  });
 
   // Route to show winner history
-  app.get('/team', ensureAuthenticated, function (req, res) {
+  app.get(/team\/([^\/.]+)$/, ensureAuthenticated, function (req, res) {
+    var name = req.params[0];
     // Load a fireteam
     battle_ctrl.loadSoldiers(req.user.fireteam, function showTeam(err, team) {
-       if (err || !team) {
-         res.send('Crap', 400);
-       } else {
-         res.render('team', { soldiers: team });
-       }
+      if (err || !team) {
+        res.send('Crap', 400);
+      } else {
+        // Find the soldier and return his index
+        var index = team.map(function(soldier, i) {
+          return (soldier.name.toLowerCase() === name.toLowerCase()) ? i : null;
+        });
+        // Remove all null entries (purify array to have only the valid soldier name
+        index = index.filter(function(n){return n});
+        res.render('team', { soldiers: team, soldierIndex: index[0]});
+      }
     });	  
   });
 

@@ -3,9 +3,13 @@
 function start(app) {
   // Load our personal modules
   var mongoose  = require('mongoose');
+
+  var mongoUri = 	process.env.MONGOLAB_URI || 
+  								process.env.MONGOHQ_URL ||
+  								'mongodb://localhost/test';
   
   // Connect our db
-  mongoose.connect('mongodb://localhost/test');
+  mongoose.connect(mongoUri);
   
   // Bootstrap routes
   require('./config/routes')(app);

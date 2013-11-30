@@ -23,18 +23,15 @@ var user_ctrl = require('./app/controllers/user_controller');
 // Load the github client ID and client secret values
 // NOTE: These must exist for the app to work.
 // They are not in source so ensure you create them or get them from someone!
-try {
-  var github_auth = JSON.parse(fs.readFileSync('github_auth.json'));
-} catch (e) {
-  console.log(e);
+var GITHUB_CLIENT_ID = process.env.CLIENT_ID,
+    GITHUB_CLIENT_SECRET = process.env.CLIENT_SECRET;
+
+if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
   console.log('ERROR! GitHub auth file missing: cannot continue. '+
         'Supply a github auth file that has client id and secret id to allow user login. '+
         '\n\nIf you ask super nice, ngallagher87 will give them to you.');
   process.exit(1);
 }
-
-var GITHUB_CLIENT_ID = github_auth.client_id,
-    GITHUB_CLIENT_SECRET = github_auth.client_secret;
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
